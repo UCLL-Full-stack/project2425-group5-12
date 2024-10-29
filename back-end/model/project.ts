@@ -21,6 +21,7 @@ export class Project {
     }) {
         this.validate(project);
 
+        this.id = project.id;
         this.title = project.title;
         this.description = project.description;
         this.done = false;
@@ -55,6 +56,10 @@ export class Project {
 
     getOwner(): User {
         return this.owner;
+    }
+
+    setId(id: number) {
+        this.id = id;
     }
 
     addTask(task: Task) {
