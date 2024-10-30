@@ -132,9 +132,7 @@ taskRouter.get('/', (req: Request, res: Response) => {
  *                content:
  *                    application/json:
  *                        schema:
- *                            type: array
- *                            items:
- *                                $ref: "#/components/schemas/Task"
+ *                            $ref: "#/components/schemas/Task"
  */
 taskRouter.get('/:id', (req: Request, res: Response) => {
     try {

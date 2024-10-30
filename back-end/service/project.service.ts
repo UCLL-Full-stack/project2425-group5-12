@@ -15,6 +15,12 @@ const createProject = ({ title, description, owner: userInput }: ProjectInput): 
     return projectDb.createProject(project);
 };
 
+const getProjectById = ({ id }: { id: number }): Project => {
+    const project = projectDb.getProjectById({ id });
+    if (!project) throw new Error(`Project with id:${id} not found.`);
+    return project;
+};
+
 const toggleProjectDoneById = ({ id }: { id: number }) => {
     const project = projectDb.getProjectById({ id });
     if (!project) throw new Error(`Project with id:${id} not found.`);
@@ -62,4 +68,5 @@ export default {
     toggleProjectDoneById,
     addMemberByIdByProjectId,
     addTaskByIdByProjectId,
+    getProjectById,
 };

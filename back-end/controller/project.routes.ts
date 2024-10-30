@@ -75,6 +75,35 @@ projectRouter.get('/', (req: Request, res: Response) => {
 
 /**
  * @swagger
+ * /projects/{id}:
+ *   get:
+ *       summary: Get a project by id.
+ *       parameters:
+ *           - in: path
+ *             name: id
+ *             schema:
+ *               type: integer
+ *               required: true
+ *               description: The project id.
+ *       responses:
+ *            200:
+ *                description: A project object.
+ *                content:
+ *                    application/json:
+ *                        schema:
+ *                            $ref: "#/components/schemas/Project"
+ */
+projectRouter.get('/:id', (req: Request, res: Response) => {
+    try {
+        const project = projectService.getProjectById({ id: Number(req.params.id) });
+        res.status(200).json(project);
+    } catch (error: any) {
+        res.status(400).json({ status: 'error', message: error.message });
+    }
+});
+
+/**
+ * @swagger
  * /projects:
  *   post:
  *     summary: Post a new project.
