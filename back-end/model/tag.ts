@@ -5,6 +5,7 @@ export class Tag {
     constructor(tag: { id?: number; title: string }) {
         this.validate(tag);
 
+        this.id = tag.id;
         this.title = tag.title;
     }
 
@@ -14,6 +15,10 @@ export class Tag {
 
     getTitle(): string {
         return this.title;
+    }
+
+    setId(id: number) {
+        this.id = id;
     }
 
     validate(tag: { title: string }) {

@@ -23,6 +23,7 @@ export class Task {
     }) {
         this.validate(task);
 
+        this.id = task.id;
         this.title = task.title;
         this.description = task.description;
         this.done = false;
@@ -64,6 +65,10 @@ export class Task {
             throw new Error('Tag is already added');
         }
         this.tags.push(tag);
+    }
+
+    setId(id: number) {
+        this.id = id;
     }
 
     switchDone() {
