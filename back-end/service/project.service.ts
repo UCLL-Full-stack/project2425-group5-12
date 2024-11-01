@@ -9,7 +9,7 @@ const getAllProjects = (): Project[] => projectDb.getAllProjects();
 const createProject = ({ title, description, owner: userInput }: ProjectInput): Project => {
     if (!userInput.id) throw new Error('Owner id is required.');
     const owner = userDb.getUserById({ id: userInput.id });
-    if (!owner) throw new Error('Owner not found.');
+    if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
 
     const project = new Project({ title, description, owner });
     return projectDb.createProject(project);
