@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Project } from "@/types";
 import ProjectService from "@/services/ProjectService";
 import ProjectDetails from "@/components/projects/ProjectDetails";
+import Header from "@/components/header";
 
 const ProjectDetailsOverview: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project>();
@@ -22,6 +23,7 @@ const ProjectDetailsOverview: React.FC = () => {
 
   return (
     <>
+      <Header></Header>
       {selectedProject && <ProjectDetails project={selectedProject} />}
       <button onClick={() => router.push("/projects")}>Back</button>
     </>

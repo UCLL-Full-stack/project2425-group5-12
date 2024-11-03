@@ -1,3 +1,4 @@
+import Header from "@/components/header";
 import TaskDetails from "@/components/tasks/TaskDetails";
 import TaskService from "@/services/TaskService";
 import { Task } from "@/types";
@@ -22,6 +23,7 @@ const TaskDetailsOverview: React.FC = () => {
 
   return (
     <>
+      <Header></Header>
       {selectedTask && <TaskDetails task={selectedTask} />}
       <button onClick={() => router.push(`/projects/${projectId}`)}>
         Back

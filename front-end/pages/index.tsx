@@ -1,7 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import Header from "@/components/header";
 import React from "react";
 
@@ -15,6 +12,10 @@ const Home: React.FC = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
+      <main>
+        Welcome to TaskIt! Organise, plan and maintain tasks and projects with
+        ease!
+      </main>
     </>
   );
 };
