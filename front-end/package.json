@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "next dev -p 8080",
     "build": "next build",
-    "start": "npm run dev"
+    "start": "next start -p 8080"
   },
   "dependencies": {
     "@types/react": "18.0.28",
