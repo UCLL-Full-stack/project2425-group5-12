@@ -1,2 +1,0 @@
-status heb ik veranderd naar done en dan boolean waarde
-ik zou deadline weghalen van project want gaat moeilijk zijn om weer te geven in frontend, kunnen we later nog toevoegen
