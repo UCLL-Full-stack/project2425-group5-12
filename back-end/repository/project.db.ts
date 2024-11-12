@@ -1,8 +1,4 @@
-import { set } from 'date-fns';
 import { Project } from '../model/project';
-import { Task } from '../model/task';
-import { User } from '../model/user';
-import { Tag } from '../model/tag';
 
 let currentId = 1;
 

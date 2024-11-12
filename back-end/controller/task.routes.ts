@@ -97,6 +97,36 @@ taskRouter.post('/', (req: Request, res: Response) => {
 /**
  * @swagger
  * /tasks:
+ *   put:
+ *     summary: Change an existing task.
+ *     requestBody:
+ *       description: A taskInput object.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TaskInput'
+ *     responses:
+ *       200:
+ *         description: changed task.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
+ */
+taskRouter.put('/', (req: Request, res: Response) => {
+    try {
+        const task = <TaskInput>req.body;
+        const result = taskService.updateTask(task);
+        res.status(200).json(result);
+    } catch (error: any) {
+        res.status(400).json({ status: 'error', message: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /tasks:
  *   get:
  *       summary: Get a list of all tasks.
  *       responses:

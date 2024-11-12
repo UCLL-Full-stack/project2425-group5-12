@@ -7,17 +7,17 @@ import { TaskInput } from '../types';
 
 const getAllTasks = (): Task[] => taskDb.getAllTasks();
 
-const createTask = ({
+const createTask = async ({
     title,
     description,
     deadline,
     owner: userInput,
     tags: tagInput,
-}: TaskInput): Task => {
+}: TaskInput): Promise<Task> => {
     const deadlineDate = new Date(deadline);
 
     if (!userInput.id) throw new Error('Owner id is required to create a task.');
-    const owner = userDb.getUserById({ id: userInput.id });
+    const owner = await userDb.getUserById({ id: userInput.id });
 
     if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
 
@@ -34,6 +34,38 @@ const createTask = ({
     return taskDb.createTask(task);
 };
 
+const updateTask = async ({
+    id,
+    title,
+    description,
+    deadline,
+    owner: userInput,
+    tags: tagInput,
+}: TaskInput): Promise<Task> => {
+    if (!id) throw new Error('Task id is required to create a task.');
+    const task = getTaskById({ id });
+    if (!task) throw new Error(`Task with id:${id} not found.`);
+
+    const deadlineDate = new Date(deadline);
+
+    if (!userInput.id) throw new Error('Owner id is required to change a task.');
+    const owner = await userDb.getUserById({ id: userInput.id });
+
+    if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
+
+    const tags: Tag[] = [];
+    tagInput.forEach((tag) => {
+        if (!tag.id) throw new Error(`Tag id of all tasks is required to change task.`);
+        const tagToPush = tagDb.getTagById({ id: tag.id });
+        if (tagToPush) {
+            tags.push(tagToPush);
+        } else throw new Error(`Tag with id:${tag.id} not found.`);
+    });
+
+    const changedTask = new Task({ id, title, description, deadline: deadlineDate, tags, owner });
+    return taskDb.changeTask(changedTask);
+};
+
 const getTaskById = ({ id }: { id: number }): Task => {
     const task = taskDb.getTaskById({ id });
     if (!task) throw new Error(`Task with id:${id} not found.`);
@@ -42,7 +74,7 @@ const getTaskById = ({ id }: { id: number }): Task => {
 
 const addTagByIdByTaskId = ({ taskId, tagId }: { taskId: number; tagId: number }): Task => {
     const task = getTaskById({ id: taskId });
-    if (!task) throw new Error(`Task with id:${tagId} not found.`);
+    if (!task) throw new Error(`Task with id:${taskId} not found.`);
 
     const tag = tagDb.getTagById({ id: tagId });
     if (!tag) throw new Error(`Tag with id:${tagId} not found.`);
@@ -57,5 +89,11 @@ const toggleTaskDoneById = ({ id }: { id: number }) => {
     task.switchDone();
     return taskDb.changeTask(task);
 };
-
-export default { getAllTasks, createTask, getTaskById, toggleTaskDoneById, addTagByIdByTaskId };
+export default {
+    getAllTasks,
+    createTask,
+    getTaskById,
+    toggleTaskDoneById,
+    addTagByIdByTaskId,
+    updateTask,
+};

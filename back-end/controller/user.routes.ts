@@ -56,8 +56,8 @@ const userRouter = express.Router();
  *                            items:
  *                                $ref: "#/components/schemas/User"
  */
-userRouter.get('/', (req: Request, res: Response) => {
-    const users = userService.getAllUsers();
+userRouter.get('/', async (req: Request, res: Response) => {
+    const users = await userService.getAllUsers();
     res.status(200).json(users);
 });
 

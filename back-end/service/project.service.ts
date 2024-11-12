@@ -6,9 +6,13 @@ import { ProjectInput } from '../types';
 
 const getAllProjects = (): Project[] => projectDb.getAllProjects();
 
-const createProject = ({ title, description, owner: userInput }: ProjectInput): Project => {
+const createProject = async ({
+    title,
+    description,
+    owner: userInput,
+}: ProjectInput): Promise<Project> => {
     if (!userInput.id) throw new Error('Owner id is required.');
-    const owner = userDb.getUserById({ id: userInput.id });
+    const owner = await userDb.getUserById({ id: userInput.id });
     if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
 
     const project = new Project({ title, description, owner });
@@ -45,17 +49,17 @@ const addTaskByIdByProjectId = ({
     return projectDb.changeProject(project);
 };
 
-const addMemberByIdByProjectId = ({
+const addMemberByIdByProjectId = async ({
     projectId,
     memberId,
 }: {
     projectId: number;
     memberId: number;
-}): Project => {
+}): Promise<Project> => {
     const project = projectDb.getProjectById({ id: projectId });
     if (!project) throw new Error(`Project with id:${projectId} not found.`);
 
-    const user = userDb.getUserById({ id: memberId });
+    const user = await userDb.getUserById({ id: memberId });
     if (!user) throw new Error(`User with id:${memberId} not found.`);
 
     project.addMember(user);

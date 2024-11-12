@@ -2,7 +2,7 @@ import { Tag } from '../model/tag';
 import { TagInput } from '../types';
 
 let currentId = 1;
-const tags: Tag[] = [new Tag({ id: currentId++, title: 'high-priority' })];
+const tags: Tag[] = [];
 
 const getTagById = ({ id }: { id: number }): Tag | null => {
     const tag = tags.find((tag) => tag.getId() === id);

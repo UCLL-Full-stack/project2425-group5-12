@@ -34,10 +34,42 @@ const createProject = async ({
   });
 };
 
+const addTaskByIdByProjectId = async ({
+  projectId,
+  taskId,
+}: {
+  projectId: string;
+  taskId: string;
+}) => {
+  return fetch(
+    process.env.NEXT_PUBLIC_API_URL + `/projects/${projectId}/tasks/${taskId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+const toggleProject = async ({ projectId }: { projectId: string }) => {
+  return fetch(
+    process.env.NEXT_PUBLIC_API_URL + `/projects/${projectId}/toggle`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 const ProjectService = {
   getAllProjects,
   getProjectById,
   createProject,
+  addTaskByIdByProjectId,
+  toggleProject,
 };
 
 export default ProjectService;
