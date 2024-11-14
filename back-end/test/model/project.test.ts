@@ -10,14 +10,14 @@ const user1 = new User({
     lastName: 'Doe',
     email: 'john.doe@ucll.be',
     password: 'john123',
-    role: 'user',
+    role: 'USER',
 });
 const user2 = new User({
     firstName: 'Jane',
     lastName: 'Toe',
     email: 'jane.toe@ucll.be',
     password: 'jane123',
-    role: 'user',
+    role: 'USER',
 });
 const deadline1 = set(new Date(), { year: 2025, month: 10, date: 28, hours: 15 });
 const deadline2 = set(new Date(), { year: 2025, month: 11, date: 28, hours: 15 });

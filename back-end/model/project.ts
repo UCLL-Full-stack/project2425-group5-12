@@ -1,5 +1,10 @@
 import { Task } from './task';
 import { User } from './user';
+import { 
+    Project as ProjectPrisma,
+    User as UserPrismaPrisma,
+    Task as TaskPrisma
+} from '@prisma/client';
 
 export class Project {
     private id?: number;
@@ -111,5 +116,25 @@ export class Project {
             this.members.length == project.getMembers().length &&
             this.members.every((member, index) => member.equals(project.getMembers()[index]))
         );
+    }
+
+    static from({
+        id,
+        title,
+        description,
+        done,
+        tasks,
+        members,
+        owner,
+    }: ProjectPrisma ) {
+        return new Project({
+            id,
+            title,
+            description,
+            done,
+            tasks,
+            members,
+            owner
+        })
     }
 }

@@ -5,7 +5,7 @@ import taskDb from '../repository/task.db';
 import userDb from '../repository/user.db';
 import { TaskInput } from '../types';
 
-const getAllTasks = (): Task[] => taskDb.getAllTasks();
+const getAllTasks = async (): Promise<Task[]> => taskDb.getAllTasks();
 
 const createTask = async ({
     title,
@@ -66,13 +66,13 @@ const updateTask = async ({
     return taskDb.changeTask(changedTask);
 };
 
-const getTaskById = ({ id }: { id: number }): Task => {
+const getTaskById = async({ id }: { id: number }): Promise<Task> => {
     const task = taskDb.getTaskById({ id });
     if (!task) throw new Error(`Task with id:${id} not found.`);
     return task;
 };
 
-const addTagByIdByTaskId = ({ taskId, tagId }: { taskId: number; tagId: number }): Task => {
+const addTagByIdByTaskId = async ({ taskId, tagId }: { taskId: number; tagId: number }): Promise<Task> => {
     const task = getTaskById({ id: taskId });
     if (!task) throw new Error(`Task with id:${taskId} not found.`);
 

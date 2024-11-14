@@ -16,7 +16,7 @@ const userInput: UserInput = {
     lastName: 'Doe',
     email: 'jack.doe@ucll.be',
     password: 'jack123',
-    role: 'user',
+    role: 'USER',
 };
 
 const user = new User({ ...userInput });
@@ -27,7 +27,7 @@ const user2 = new User({
     lastName: 'Doe',
     email: 'lisa.doe@ucll.be',
     password: 'lisa123',
-    role: 'user',
+    role: 'USER',
 });
 
 const task = new Task({
