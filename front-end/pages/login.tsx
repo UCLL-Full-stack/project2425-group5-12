@@ -1,8 +1,9 @@
 import Header from "@/components/header";
+import LoginForm from "@/components/login/LoginForm";
 import ProjectForm from "@/components/projects/ProjectForm";
 import { useRouter } from "next/router";
 
-const CreateProject: React.FC = () => {
+const LoginPage: React.FC = () => {
   const router = useRouter();
 
   return (
@@ -11,20 +12,12 @@ const CreateProject: React.FC = () => {
         <Header />
       </div>
       <main className="flex-1 p-8">
-        <div className="flex justify-start">
-          <button
-            onClick={() => router.push("/projects")}
-            className="px-6 py-3 bg-gray-700 text-white rounded-md hover:bg-gray-800"
-          >
-            Back
-          </button>
-        </div>
         <section className="">
-          <ProjectForm />
+          <LoginForm />
         </section>
       </main>
     </div>
   );
 };
 
-export default CreateProject;
+export default LoginPage;

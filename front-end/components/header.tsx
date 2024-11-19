@@ -1,43 +1,58 @@
 import ProjectService from "@/services/ProjectService";
 import { Project } from "@/types";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 const Header: React.FC = () => {
   const [projects, setProjects] = useState<Array<Project>>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoggedIn, setIsloggedIn] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const getAllProjects = async () => {
     const response = await ProjectService.getAllProjects();
     const projects = await response.json();
-    setProjects(projects);
+    if (response.ok) {
+      setProjects(projects);
+    } else {
+      setErrorMessage(projects.message);
+    }
   };
 
   useEffect(() => {
     getAllProjects();
   }, []);
 
+  useEffect(() => {
+    const isLoggedIn = sessionStorage.getItem("loggedIn");
+    if (!isLoggedIn) {
+      router.push("/login");
+    } else {
+      setIsloggedIn(true);
+    }
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 w-full md:w-[12rem] bg-emerald-900 text-white z-50 shadow-lg md:h-screen flex flex-col items-center justify-between p-6">
-      {/* Home Icon Link */}
-      <Link className="mb-4 flex items-center justify-center group" href="/">
+    <aside className="fixed top-0 left-0 w-full md:w-[12rem] bg-emerald-900 text-white z-50 shadow-lg md:h-screen flex flex-col items-center justify-between p-6">
+      <Link
+        className="mb-4 flex items-center justify-center group"
+        href={isLoggedIn ? "/" : "/login"}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="none"
           viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
+          fill="currentColor"
           className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
-          />
+          <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+          <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
         </svg>
       </Link>
       <Link
         className="flex mb-8 items-center justify-center group"
-        href="/projects/createProject"
+        href={isLoggedIn ? "/projects/createProject" : "/login"}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,25 +71,66 @@ const Header: React.FC = () => {
       </Link>
       <Link
         className="flex text-2xl items-center justify-center hover:scale-110 hover:text-emerald-300 transition-transform"
-        href="/projects"
+        href={isLoggedIn ? "/projects" : "/login"}
       >
         My Projects:
       </Link>
       <div className="flex-1 md:mt-4 overflow-y-scroll scrollbar-hidden">
         <ul className="flex flex-col gap-4 text-white text-sm">
-          {projects.map((project) => (
-            <li key={project.id}>
-              <Link
-                href={`/projects/${project.id}`}
-                className=" flex text-xl items-center justify-center hover:text-emerald-300 transition-transform"
-              >
-                {project.title}
-              </Link>
-            </li>
-          ))}
+          {projects &&
+            projects.map((project) => (
+              <li key={project.id}>
+                <Link
+                  href={isLoggedIn ? `/projects/${project.id}` : "/login"}
+                  className="flex text-xl items-center justify-center hover:text-emerald-300 transition-transform"
+                >
+                  {project.title}
+                </Link>
+              </li>
+            ))}
+          {errorMessage && <li className="text-red-400">{errorMessage}</li>}
         </ul>
       </div>
-    </header>
+      {!isLoggedIn && (
+        <Link
+          className="b-0 flex items-center justify-center group"
+          href="/login"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </Link>
+      )}
+      {isLoggedIn && (
+        <Link
+          className="b-0 flex items-center justify-center group"
+          href="/login"
+          onClick={() => sessionStorage.removeItem("loggedIn")}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.5 3.75a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5h-6a1.5 1.5 0 0 1-1.5-1.5V15a.75.75 0 0 0-1.5 0v3.75a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5.25a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3V9A.75.75 0 1 0 9 9V5.25a1.5 1.5 0 0 1 1.5-1.5h6ZM5.78 8.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 0 0 0 1.06l3 3a.75.75 0 0 0 1.06-1.06l-1.72-1.72H15a.75.75 0 0 0 0-1.5H4.06l1.72-1.72a.75.75 0 0 0 0-1.06Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </Link>
+      )}
+    </aside>
   );
 };
 

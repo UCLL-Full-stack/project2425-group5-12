@@ -1,3 +1,4 @@
+import { DomainError } from './domainError';
 import { Task } from './task';
 import { User } from './user';
 import { 
@@ -69,17 +70,17 @@ export class Project {
 
     addTask(task: Task) {
         if (!this.members.includes(task.getOwner())) {
-            throw new Error('Task owner not a member of project');
+            throw new DomainError('Task owner not a member of project');
         }
         if (this.tasks.includes(task)) {
-            throw new Error('Task already in project');
+            throw new DomainError('Task already in project');
         }
         this.tasks.push(task);
     }
 
     addMember(member: User) {
         if (this.members.includes(member)) {
-            throw new Error('User already member of project');
+            throw new DomainError('User already member of project');
         }
         this.members.push(member);
     }
@@ -94,13 +95,13 @@ export class Project {
 
     validate(project: { title: string; description: string; owner: User }) {
         if (!project.title?.trim()) {
-            throw new Error('Title is required');
+            throw new DomainError('Title is required');
         }
         if (!project.description?.trim()) {
-            throw new Error('Description is required');
+            throw new DomainError('Description is required');
         }
         if (!project.owner) {
-            throw new Error('Owner is required');
+            throw new DomainError('Owner is required');
         }
     }
 

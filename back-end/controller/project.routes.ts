@@ -47,7 +47,7 @@
  *                      type: number
  *                      format: int64
  */
-import express, { Response, Request } from 'express';
+import express, { Response, Request, NextFunction } from 'express';
 import projectService from '../service/project.service';
 import { ProjectInput } from '../types';
 
@@ -68,9 +68,13 @@ const projectRouter = express.Router();
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.get('/', (req: Request, res: Response) => {
-    const projects = projectService.getAllProjects();
-    res.status(200).json(projects);
+projectRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const projects = projectService.getAllProjects();
+        res.status(200).json(projects);
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
@@ -93,12 +97,12 @@ projectRouter.get('/', (req: Request, res: Response) => {
  *                        schema:
  *                            $ref: "#/components/schemas/Project"
  */
-projectRouter.get('/:id', (req: Request, res: Response) => {
+projectRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     try {
         const project = projectService.getProjectById({ id: Number(req.params.id) });
         res.status(200).json(project);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -122,13 +126,13 @@ projectRouter.get('/:id', (req: Request, res: Response) => {
  *             schema:
  *               $ref: '#/components/schemas/Project'
  */
-projectRouter.post('/', (req: Request, res: Response) => {
+projectRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
     try {
         const project = <ProjectInput>req.body;
-        const result = projectService.createProject(project);
-        res.status(200).json(result);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+        projectService.createProject(project);
+        res.status(201).json({ message: 'Project succesfully created!' });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -154,12 +158,12 @@ projectRouter.post('/', (req: Request, res: Response) => {
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.put('/:id/toggle', (req: Request, res: Response) => {
+projectRouter.put('/:id/toggle', (req: Request, res: Response, next: NextFunction) => {
     try {
         const project = projectService.toggleProjectDoneById({ id: Number(req.params.id) });
         res.status(200).json(project);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -191,17 +195,20 @@ projectRouter.put('/:id/toggle', (req: Request, res: Response) => {
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.put('/:projectId/tasks/:taskId', (req: Request, res: Response) => {
-    try {
-        const project = projectService.addTaskByIdByProjectId({
-            projectId: Number(req.params.projectId),
-            taskId: Number(req.params.taskId),
-        });
-        res.status(200).json(project);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+projectRouter.put(
+    '/:projectId/tasks/:taskId',
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const project = projectService.addTaskByIdByProjectId({
+                projectId: Number(req.params.projectId),
+                taskId: Number(req.params.taskId),
+            });
+            res.status(200).json(project);
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 /**
  * @swagger
@@ -231,16 +238,19 @@ projectRouter.put('/:projectId/tasks/:taskId', (req: Request, res: Response) => 
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.put('/:projectId/members/:memberId', (req: Request, res: Response) => {
-    try {
-        const project = projectService.addMemberByIdByProjectId({
-            projectId: Number(req.params.projectId),
-            memberId: Number(req.params.memberId),
-        });
-        res.status(200).json(project);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+projectRouter.put(
+    '/:projectId/members/:memberId',
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const project = projectService.addMemberByIdByProjectId({
+                projectId: Number(req.params.projectId),
+                memberId: Number(req.params.memberId),
+            });
+            res.status(200).json(project);
+        } catch (error) {
+            next(error);
+        }
     }
-});
+);
 
 export { projectRouter };

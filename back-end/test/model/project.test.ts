@@ -4,6 +4,7 @@ import { User } from '../../model/user';
 import { Tag } from '../../model/tag';
 import { Project } from '../../model/project';
 import exp from 'constants';
+import { DomainError } from '../../model/domainError';
 
 const user1 = new User({
     firstName: 'John',
@@ -58,6 +59,7 @@ test('given: invalid title for project, when: project is created, then: error is
 
     //then
     expect(project).toThrow('Title is required');
+    expect(project).toThrow(DomainError);
 });
 
 test('given: existing project, when: new member is added, then: new member is added to project', () => {
@@ -81,6 +83,7 @@ test('given: existing project, when: new member is added again, then: error is t
 
     //then
     expect(addMember).toThrow('User already member of project');
+    expect(addMember).toThrow(DomainError);
 });
 
 test('given: existing project, when: new task is added, then: new task is added to project', () => {
@@ -104,6 +107,7 @@ test('given: existing project, when: new task is added again, then: error is thr
 
     //then
     expect(addTask).toThrow('Task already in project');
+    expect(addTask).toThrow(DomainError);
 });
 
 test('given: existing project, when: new task is added but task owner not in project, then: error is thrown', () => {
@@ -115,6 +119,7 @@ test('given: existing project, when: new task is added but task owner not in pro
 
     //then
     expect(addTask).toThrow('Task owner not a member of project');
+    expect(addTask).toThrow(DomainError);
 });
 
 test('given: existing project, when: project is marked done, then: done is changed to true', () => {

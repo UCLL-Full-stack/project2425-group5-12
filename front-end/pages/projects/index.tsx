@@ -7,12 +7,17 @@ import React, { useEffect, useState } from "react";
 
 const Projects: React.FC = () => {
   const [projects, setProjects] = useState<Array<Project>>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
 
   const getAllProjects = async () => {
     const response = await ProjectService.getAllProjects();
     const projects = await response.json();
-    setProjects(projects);
+    if (response.ok) {
+      setProjects(projects);
+    } else {
+      setErrorMessage(projects.message);
+    }
   };
 
   useEffect(() => {
@@ -21,14 +26,10 @@ const Projects: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar Header */}
       <div className="mr-60">
         <Header />
       </div>
-
-      {/* Main Content */}
       <main className="flex-1 p-8">
-        {/* Page Title */}
         <h1 className="text-3xl font-semibold text-gray-800 mb-6">
           Projects Overview
         </h1>
@@ -41,11 +42,13 @@ const Projects: React.FC = () => {
             New Project
           </button>
         </div>
-
-        {/* Project Overview Table */}
         <section className="mb-8">
           {projects && <ProjectOverviewTable projects={projects} />}
         </section>
+        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
+        {projects.length === 0 && (
+          <p className="text-red-400">No projects found!</p>
+        )}
       </main>
     </div>
   );

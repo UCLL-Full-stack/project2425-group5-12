@@ -8,15 +8,19 @@ import { useEffect, useState } from "react";
 const TaskDetailsOverview: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task>();
   const [rerenderKey, setRerenderKey] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const router = useRouter();
   const { projectId, taskId } = router.query;
 
-  // Fetch task details based on taskId
   const getTaskById = async () => {
     const response = await TaskService.getTaskById(taskId as string);
     const task = await response.json();
-    setSelectedTask(task);
+    if (response.ok) {
+      setSelectedTask(task);
+    } else {
+      setErrorMessage(task.message);
+    }
   };
 
   useEffect(() => {
@@ -47,6 +51,7 @@ const TaskDetailsOverview: React.FC = () => {
             />
           )}
         </section>
+        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
       </main>
     </div>
   );

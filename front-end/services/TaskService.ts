@@ -1,4 +1,4 @@
-import { Tag, Task } from "@/types";
+import { Tag } from "@/types";
 
 const getTaskById = async (id: string) => {
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/tasks/" + id, {

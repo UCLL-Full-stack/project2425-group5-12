@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { set } from 'date-fns';
-import { connect } from 'http2';
 
 const prisma = new PrismaClient();
 
@@ -18,7 +17,7 @@ const main = async () => {
             firstName: 'John',
             lastName: 'Doe',
             email: 'john.doe@ucll.be',
-            password: 'john132',
+            password: await bcrypt.hash('john123', 12),
             role: 'USER',
         },
     });
@@ -28,8 +27,8 @@ const main = async () => {
             firstName: 'Jane',
             lastName: 'Toe',
             email: 'jane.toe@ucll.be',
-            password: 'jane123',
-            role: 'USER', //
+            password: await bcrypt.hash('jane123', 12),
+            role: 'USER',
         },
     });
 
@@ -52,7 +51,7 @@ const main = async () => {
         },
     });
 
-    const fullstack = await prisma.project.create({
+    await prisma.project.create({
         data: {
             title: 'Full-Stack',
             description: 'Full-Stack Course',

@@ -31,3 +31,8 @@ export type Tag = {
   id: number;
   title: string;
 };
+
+export type StatusMessage = {
+  status: string;
+  message: string;
+} | null;

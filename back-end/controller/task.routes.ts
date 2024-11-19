@@ -58,7 +58,7 @@
  *                        format: int64
 
  */
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import taskService from '../service/task.service';
 import { TaskInput } from '../types';
 
@@ -84,13 +84,13 @@ const taskRouter = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Task'
  */
-taskRouter.post('/', (req: Request, res: Response) => {
+taskRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
     try {
         const task = <TaskInput>req.body;
         const result = taskService.createTask(task);
-        res.status(200).json(result);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -114,13 +114,13 @@ taskRouter.post('/', (req: Request, res: Response) => {
  *             schema:
  *               $ref: '#/components/schemas/Task'
  */
-taskRouter.put('/', (req: Request, res: Response) => {
+taskRouter.put('/', (req: Request, res: Response, next: NextFunction) => {
     try {
         const task = <TaskInput>req.body;
         const result = taskService.updateTask(task);
         res.status(200).json(result);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -139,9 +139,13 @@ taskRouter.put('/', (req: Request, res: Response) => {
  *                            items:
  *                                $ref: "#/components/schemas/Task"
  */
-taskRouter.get('/', (req: Request, res: Response) => {
-    const tasks = taskService.getAllTasks();
-    res.status(200).json(tasks);
+taskRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const tasks = taskService.getAllTasks();
+        res.status(200).json(tasks);
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
@@ -164,12 +168,12 @@ taskRouter.get('/', (req: Request, res: Response) => {
  *                        schema:
  *                            $ref: "#/components/schemas/Task"
  */
-taskRouter.get('/:id', (req: Request, res: Response) => {
+taskRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     try {
         const task = taskService.getTaskById({ id: Number(req.params.id) });
         res.status(200).json(task);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -195,12 +199,12 @@ taskRouter.get('/:id', (req: Request, res: Response) => {
  *                            items:
  *                                $ref: "#/components/schemas/Task"
  */
-taskRouter.put('/:id/toggle', (req: Request, res: Response) => {
+taskRouter.put('/:id/toggle', (req: Request, res: Response, next: NextFunction) => {
     try {
         const task = taskService.toggleTaskDoneById({ id: Number(req.params.id) });
         res.status(200).json(task);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -232,15 +236,15 @@ taskRouter.put('/:id/toggle', (req: Request, res: Response) => {
  *                            items:
  *                                $ref: "#/components/schemas/Task"
  */
-taskRouter.put('/:taskId/tags/:tagId', (req: Request, res: Response) => {
+taskRouter.put('/:taskId/tags/:tagId', (req: Request, res: Response, next: NextFunction) => {
     try {
         const task = taskService.addTagByIdByTaskId({
             taskId: Number(req.params.taskId),
             tagId: Number(req.params.tagId),
         });
         res.status(200).json(task);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+    } catch (error) {
+        next(error);
     }
 });
 

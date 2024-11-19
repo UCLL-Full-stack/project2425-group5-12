@@ -1,5 +1,6 @@
 import { Role } from '../types';
 import { User as userPrisma } from '@prisma/client';
+import { DomainError } from './domainError';
 
 export class User {
     private id?: number;
@@ -59,19 +60,19 @@ export class User {
         role: Role;
     }) {
         if (!user.firstName?.trim()) {
-            throw new Error('First name is required');
+            throw new DomainError('First name is required');
         }
         if (!user.lastName?.trim()) {
-            throw new Error('Last name is required');
+            throw new DomainError('Last name is required');
         }
         if (!user.email?.trim()) {
-            throw new Error('Email is required');
+            throw new DomainError('Email is required');
         }
         if (!user.password?.trim()) {
-            throw new Error('Password is required');
+            throw new DomainError('Password is required');
         }
         if (!user.role) {
-            throw new Error('Role is required');
+            throw new DomainError('Role is required');
         }
     }
 

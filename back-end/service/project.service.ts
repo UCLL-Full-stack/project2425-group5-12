@@ -43,7 +43,7 @@ const addTaskByIdByProjectId = ({
     if (!project) throw new Error(`Project with id:${projectId} not found.`);
 
     const task = taskDb.getTaskById({ id: taskId });
-    if (!task) throw new Error(`Task with id:${taskId} not found.`);
+    if (!task) throw new Error(`Cannot add task, task with did:${taskId} not found.`);
 
     project.addTask(task);
     return projectDb.changeProject(project);

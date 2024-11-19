@@ -2,11 +2,15 @@ import { ta } from 'date-fns/locale';
 import { Project } from './project';
 import { Tag } from './tag';
 import { User } from './user';
+<<<<<<< Updated upstream
 import {
     User as UserPrisma,
     Tag as TagPrisma,
     Task as TaskPrisma
 } from '@prisma/client';
+=======
+import { DomainError } from './domainError';
+>>>>>>> Stashed changes
 
 export class Task {
     private id?: number;
@@ -68,6 +72,7 @@ export class Task {
     addTag(tag: Tag) {
         if (this.tags.includes(tag)) {
             throw new Error('Tag is already added');
+            throw new DomainError('Tag is already added');
         }
         this.tags.push(tag);
     }
@@ -87,18 +92,23 @@ export class Task {
     validate(task: { title: string; description: string; deadline: Date; owner: User }) {
         if (!task.title?.trim()) {
             throw new Error('Title is required');
+            throw new DomainError('Title is required');
         }
         if (!task.description?.trim()) {
             throw new Error('Description is required');
+            throw new DomainError('Description is required');
         }
         if (!task.deadline) {
             throw new Error('Deadline is required');
+            throw new DomainError('Deadline is required');
         }
         if (task.deadline.getTime() < Date.now()) {
             throw new Error('Deadline cannot not be in past');
+            throw new DomainError('Deadline cannot not be in past');
         }
         if (!task.owner) {
             throw new Error('owner is required');
+            throw new DomainError('owner is required');
         }
     }
 

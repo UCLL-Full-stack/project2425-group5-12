@@ -18,9 +18,10 @@
  *              type: string
  *              description: Tag name.
  */
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import tagService from '../service/tag.service';
 import { TagInput } from '../types';
+import { error } from 'console';
 
 const tagRouter = express.Router();
 
@@ -39,9 +40,13 @@ const tagRouter = express.Router();
  *                            items:
  *                                $ref: "#/components/schemas/Tag"
  */
-tagRouter.get('/', (req: Request, res: Response) => {
-    const tags = tagService.getAllTags();
-    res.status(200).json(tags);
+tagRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const tags = tagService.getAllTags();
+        res.status(200).json(tags);
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
@@ -64,13 +69,13 @@ tagRouter.get('/', (req: Request, res: Response) => {
  *             schema:
  *               $ref: '#/components/schemas/Tag'
  */
-tagRouter.post('/', (req: Request, res: Response) => {
+tagRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
     try {
         const tag = <TagInput>req.body;
         const result = tagService.createTag(tag);
-        res.status(200).json(result);
-    } catch (error: any) {
-        res.status(400).json({ status: 'error', message: error.message });
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
     }
 });
 

@@ -1,107 +1,106 @@
 import ProjectService from "@/services/ProjectService";
+import UserService from "@/services/UserService";
 import { StatusMessage } from "@/types";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 
-const ProjectForm: React.FC = () => {
-  const [projectTitle, setProjectTitle] = useState<string>("");
-  const [projectDescription, setProjectDescription] = useState<string>("");
-  const [titleError, setTitleError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
+const LoginForm: React.FC = () => {
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [userPassword, setUserPassword] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
 
   const router = useRouter();
 
   const validate = (): boolean => {
-    setTitleError("");
+    setEmailError("");
+    setPasswordError("");
     setStatusMessage(null);
 
-    if (projectTitle.trim() === "") {
-      setTitleError("Title is required!");
+    if (userEmail.trim() === "") {
+      setEmailError("Email is required!");
       return false;
     }
 
-    if (projectDescription.trim() === "") {
-      setDescriptionError("Description is required!");
+    if (userPassword.trim() === "") {
+      setPasswordError("Password is required!");
       return false;
     }
     return true;
   };
 
-  const createProject = async (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    const response = await ProjectService.createProject({
-      title: projectTitle || "",
-      description: projectDescription || "",
-      ownerId: Number(sessionStorage.getItem("userId")),
+    const response = await UserService.loginByEmail({
+      email: userEmail,
+      password: userPassword,
     });
-    const projectResponse = await response.json();
+    const loggedInUser = await response.json();
     if (response.ok) {
-      setStatusMessage({ status: "succes", message: projectResponse.message });
-      setTimeout(() => router.push("/projects"), 2000);
+      setStatusMessage({ status: "succes", message: "Logged in succesfully!" });
+      sessionStorage.setItem("userId", loggedInUser.id);
+      sessionStorage.setItem("loggedIn", "true");
+      setTimeout(() => router.push("/"), 2000);
     } else {
-      setStatusMessage({ status: "error", message: projectResponse.message });
+      setStatusMessage({ status: "error", message: loggedInUser.message });
     }
   };
-
   return (
     <div className="flex items-start justify-center min-h-screen">
       <form
-        onSubmit={createProject}
+        onSubmit={handleLogin}
         className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-700 text-center">
-          Create New Project
+          Login
         </h2>
-
         <div>
           <label
             htmlFor="title"
             className="block text-sm font-medium text-gray-600"
           >
-            Title:
+            Email
           </label>
           <input
             type="text"
-            id="title"
-            name="title"
-            value={projectTitle}
-            onChange={(change) => setProjectTitle(change.target.value)}
+            id="email"
+            name="email"
+            value={userEmail}
+            onChange={(change) => setUserEmail(change.target.value)}
             required
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:ring-emerald-500 focus:border-emerald-500"
           />
-          {titleError && <div className="text-red-400">{titleError}</div>}
+          {emailError && <div className="text-red-400">{emailError}</div>}
         </div>
         <div>
           <label
-            htmlFor="description"
+            htmlFor="password"
             className="block text-sm font-medium text-gray-600"
           >
-            Description:
+            Password
           </label>
-          <textarea
-            id="description"
-            name="description"
-            value={projectDescription}
-            onChange={(change) => setProjectDescription(change.target.value)}
+          <input
+            type="text"
+            id="password"
+            name="password"
+            value={userPassword}
+            onChange={(change) => setUserPassword(change.target.value)}
             required
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:ring-emerald-500 focus:border-emerald-500"
-            rows={4}
           />
-          {descriptionError && (
-            <div className="text-red-400">{descriptionError}</div>
-          )}
+          {passwordError && <div className="text-red-400">{passwordError}</div>}
         </div>
         <button
           type="submit"
           className="w-full py-2 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
-          Submit
+          Login
         </button>
         {statusMessage && (
           <div
@@ -119,4 +118,4 @@ const ProjectForm: React.FC = () => {
   );
 };
 
-export default ProjectForm;
+export default LoginForm;

@@ -1,6 +1,6 @@
 import ProjectService from "@/services/ProjectService";
 import TaskService from "@/services/TaskService";
-import { Tag, Task } from "@/types";
+import { StatusMessage, Tag, Task } from "@/types";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import TagService from "@/services/TagService";
@@ -31,6 +31,11 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
   );
   const [existingTags, setExistingTags] = useState<Array<Tag>>([]);
   const [taskTags, setTaskTags] = useState<Array<Tag>>([]);
+  const [titleError, setTitleError] = useState<string>("");
+  const [descriptionError, setDescriptionError] = useState<string>("");
+  const [deadlineError, setDeadlineError] = useState<string>("");
+  const [tagError, setTagError] = useState<string>("");
+  const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
 
   const taskOwnerId = 1;
   const router = useRouter();
@@ -43,12 +48,21 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
   };
 
   const addNewTag = async ({ title }: { title: string }) => {
-    const response = await TagService.createTag({ title });
-    if (response.ok) {
-      const tag = await response.json();
-      setTaskTags([...taskTags, tag]);
+    setStatusMessage(null);
+    if (
+      taskTags.some((tag) => {
+        tag.title === title;
+      })
+    ) {
+      setTagError("Tag already exists");
     }
-    getTags();
+    const response = await TagService.createTag({ title });
+    const tagResponse = await response.json();
+    if (response.ok) {
+      setTaskTags([...taskTags, tagResponse]);
+    } else {
+      setStatusMessage({ status: "error", message: tagResponse.message });
+    }
   };
 
   const removeTagById = (id: number) => {
@@ -63,13 +77,41 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
 
   useEffect(() => {
     getTags();
-  }, []);
+  }, [taskTags]);
+
+  const validate = (): boolean => {
+    setTitleError("");
+    setDescriptionError("");
+    setDeadlineError("");
+    setTagError("");
+    setStatusMessage(null);
+
+    if (taskTitle.trim() === "") {
+      setTitleError("Title is required!");
+      return false;
+    }
+
+    if (taskDescription.trim() === "") {
+      setDescriptionError("Description is required!");
+      return false;
+    }
+
+    if (new Date(taskDeadline).getTime() < Date.now()) {
+      setDeadlineError("Deadline cannot be in past!");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (!validate()) {
+      return;
+    }
+
     if (task) {
-      const taskResponse = await TaskService.updateTask({
+      const response = await TaskService.updateTask({
         id: task.id,
         title: taskTitle,
         description: taskDescription,
@@ -77,26 +119,54 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
         ownerId: taskOwnerId,
         tags: taskTags,
       });
-      if (taskResponse.ok) {
-        router.push(`/projects/${projectId}/tasks/${taskId}`);
+      const updatedTaskResponse = await response.json();
+      if (response.ok) {
+        setStatusMessage({
+          status: "succes",
+          message: updatedTaskResponse.message,
+        });
+        setTimeout(
+          () => router.push(`/projects/${projectId}/tasks/${taskId}`),
+          2000
+        );
+      } else {
+        setStatusMessage({
+          status: "error",
+          message: updatedTaskResponse.message,
+        });
       }
     } else {
-      const taskResponse = await TaskService.createTask({
+      const response = await TaskService.createTask({
         title: taskTitle,
         description: taskDescription,
         deadline: taskDeadline,
         ownerId: taskOwnerId,
         tags: taskTags,
       });
-      if (taskResponse.ok) {
-        const createdTask = await taskResponse.json();
-        const projectResponse = await ProjectService.addTaskByIdByProjectId({
+      const createdTaskResponse = await response.json();
+      if (response.ok) {
+        const response = await ProjectService.addTaskByIdByProjectId({
           projectId: projectId as string,
-          taskId: createdTask.id as string,
+          taskId: createdTaskResponse.id as string,
         });
-        if (projectResponse.ok) {
-          router.push(`/projects/${projectId}`);
+        const projectResponse = await response.json();
+        if (response.ok) {
+          setStatusMessage({
+            status: "succes",
+            message: "Task succesfully craeted!",
+          });
+          setTimeout(() => router.push(`/projects/${projectId}`), 2000);
+        } else {
+          setStatusMessage({
+            status: "error",
+            message: projectResponse.message,
+          });
         }
+      } else {
+        setStatusMessage({
+          status: "error",
+          message: createdTaskResponse.message,
+        });
       }
     }
   };
@@ -119,6 +189,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-emerald-500"
         />
+        {titleError && <div className="text-red-400">{titleError}</div>}
       </div>
 
       <div className="mb-6">
@@ -133,6 +204,9 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-emerald-500"
           rows={4}
         />
+        {descriptionError && (
+          <div className="text-red-400">{descriptionError}</div>
+        )}
       </div>
 
       <div className="mb-6">
@@ -144,6 +218,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
           onChange={(e) => setTaskDeadline(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-emerald-500"
         />
+        {deadlineError && <div className="text-red-400">{deadlineError}</div>}
       </div>
 
       <TagForm
@@ -152,7 +227,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
         existingTags={existingTags}
         addNewTag={addNewTag}
       />
-
+      {tagError && <div className="text-red-400">{tagError}</div>}
       <div className="mb-6">
         <p className="text-gray-700 font-medium mb-2">Added Tags</p>
         <ul className="flex flex-wrap gap-2">
@@ -174,6 +249,17 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       >
         {task ? "Update Task" : "add Task"}
       </button>
+      {statusMessage && (
+        <div
+          className={
+            statusMessage.status === "error"
+              ? "text-red-400"
+              : "text-emerald-600"
+          }
+        >
+          {statusMessage.message}
+        </div>
+      )}
     </form>
   );
 };

@@ -1,4 +1,4 @@
-import exp from 'constants';
+import { DomainError } from '../../model/domainError';
 import { User } from '../../model/user';
 
 test('given: valid values for user, when: user is created, then: user is created with those values', () => {
@@ -33,4 +33,5 @@ test('given: invalid first name for user, when: user is created, then: error is 
 
     //then
     expect(user).toThrow('First name is required');
+    expect(user).toThrow(DomainError);
 });

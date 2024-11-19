@@ -8,6 +8,7 @@ import Header from "@/components/header";
 const ProjectDetailsOverview: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [rerenderKey, setRerenderKey] = useState<number>(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const router = useRouter();
   const { projectId } = router.query;
@@ -15,7 +16,11 @@ const ProjectDetailsOverview: React.FC = () => {
   const getProjectById = async () => {
     const response = await ProjectService.getProjectById(projectId as string);
     const project = await response.json();
-    setSelectedProject(project);
+    if (response.ok) {
+      setSelectedProject(project);
+    } else {
+      setErrorMessage(project.message);
+    }
   };
 
   useEffect(() => {
@@ -45,6 +50,7 @@ const ProjectDetailsOverview: React.FC = () => {
             />
           </section>
         )}
+        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
       </main>
     </div>
   );

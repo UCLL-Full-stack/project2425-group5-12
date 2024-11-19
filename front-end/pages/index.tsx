@@ -1,8 +1,18 @@
 import Head from "next/head";
 import Header from "@/components/header";
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 
 const Home: React.FC = () => {
+  const router = useRouter();
+  useEffect(() => {
+    const isLoggedIn = sessionStorage.getItem("loggedIn");
+    if (!isLoggedIn) {
+      router.push("/login");
+    } else {
+      router.push("/");
+    }
+  }, []);
   return (
     <>
       <Head>
@@ -12,10 +22,6 @@ const Home: React.FC = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header></Header>
-      <main>
-        Welcome to PlanIt! Organise, plan and maintain tasks and projects with
-        ease!
-      </main>
     </>
   );
 };
