@@ -2,6 +2,11 @@ import { ta } from 'date-fns/locale';
 import { Project } from './project';
 import { Tag } from './tag';
 import { User } from './user';
+import {
+    User as UserPrisma,
+    Tag as TagPrisma,
+    Task as TaskPrisma
+} from '@prisma/client';
 
 export class Task {
     private id?: number;
@@ -108,5 +113,25 @@ export class Task {
             this.tags.length === task.tags.length &&
             this.tags.every((tag, index) => tag.equals(task.getTags()[index]))
         );
+    }
+
+    static from({
+        id,
+        title,
+        description,
+        done,
+        deadline,
+        owner,
+        tags,
+    }: TaskPrisma & {owner: UserPrisma; tags: TagPrisma[]}) {
+        return new Task({
+            id,
+            title,
+            description,
+            done,
+            deadline,
+            owner: User.from(owner),
+            tags: tags.map((tag) => Tag.from(tag)),
+        })
     }
 }

@@ -14,7 +14,7 @@ const owner = new User({
     lastName: 'Doe',
     email: 'john.doe@ucll.be',
     password: 'john123',
-    role: 'user',
+    role: 'USER',
 });
 const title = 'Finish coding';
 const description = 'Finish coding assignment for full-stack development.';
