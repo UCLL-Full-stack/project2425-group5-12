@@ -73,7 +73,7 @@ const getTaskById = async({ id }: { id: number }): Promise<Task> => {
 };
 
 const addTagByIdByTaskId = async ({ taskId, tagId }: { taskId: number; tagId: number }): Promise<Task> => {
-    const task = getTaskById({ id: taskId });
+    const task =await getTaskById({ id: taskId });
     if (!task) throw new Error(`Task with id:${taskId} not found.`);
 
     const tag = tagDb.getTagById({ id: tagId });
@@ -83,7 +83,7 @@ const addTagByIdByTaskId = async ({ taskId, tagId }: { taskId: number; tagId: nu
     return taskDb.changeTask(task);
 };
 
-const toggleTaskDoneById = ({ id }: { id: number }) => {
+const toggleTaskDoneById = async ({ id }: { id: number }): Promise<Task> => {
     const task = taskDb.getTaskById({ id });
     if (!task) throw new Error(`Task with id:${id} not found.`);
     task.switchDone();
