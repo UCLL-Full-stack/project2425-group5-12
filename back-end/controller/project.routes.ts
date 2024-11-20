@@ -68,9 +68,9 @@ const projectRouter = express.Router();
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
+projectRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const projects = projectService.getAllProjects();
+        const projects = await projectService.getAllProjects();
         res.status(200).json(projects);
     } catch (error) {
         next(error);
@@ -97,9 +97,9 @@ projectRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
  *                        schema:
  *                            $ref: "#/components/schemas/Project"
  */
-projectRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+projectRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const project = projectService.getProjectById({ id: Number(req.params.id) });
+        const project = await projectService.getProjectById({ id: Number(req.params.id) });
         res.status(200).json(project);
     } catch (error) {
         next(error);
@@ -126,10 +126,10 @@ projectRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
  *             schema:
  *               $ref: '#/components/schemas/Project'
  */
-projectRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
+projectRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const project = <ProjectInput>req.body;
-        projectService.createProject(project);
+        await projectService.createProject(project);
         res.status(201).json({ message: 'Project succesfully created!' });
     } catch (error) {
         next(error);
@@ -158,9 +158,9 @@ projectRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.put('/:id/toggle', (req: Request, res: Response, next: NextFunction) => {
+projectRouter.put('/:id/toggle', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const project = projectService.toggleProjectDoneById({ id: Number(req.params.id) });
+        const project = await projectService.toggleProjectDoneById({ id: Number(req.params.id) });
         res.status(200).json(project);
     } catch (error) {
         next(error);
@@ -195,11 +195,11 @@ projectRouter.put('/:id/toggle', (req: Request, res: Response, next: NextFunctio
  *                            items:
  *                                $ref: "#/components/schemas/Project"
  */
-projectRouter.put(
+/*projectRouter.put(
     '/:projectId/tasks/:taskId',
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const project = projectService.addTaskByIdByProjectId({
+            const project = await projectService.addTaskByIdByProjectId({
                 projectId: Number(req.params.projectId),
                 taskId: Number(req.params.taskId),
             });
@@ -208,7 +208,7 @@ projectRouter.put(
             next(error);
         }
     }
-);
+);*/
 
 /**
  * @swagger
@@ -240,9 +240,9 @@ projectRouter.put(
  */
 projectRouter.put(
     '/:projectId/members/:memberId',
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const project = projectService.addMemberByIdByProjectId({
+            const project = await projectService.addMemberByIdByProjectId({
                 projectId: Number(req.params.projectId),
                 memberId: Number(req.params.memberId),
             });

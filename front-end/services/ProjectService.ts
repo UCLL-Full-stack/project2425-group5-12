@@ -34,7 +34,7 @@ const createProject = async ({
   });
 };
 
-const addTaskByIdByProjectId = async ({
+/*const addTaskByIdByProjectId = async ({
   projectId,
   taskId,
 }: {
@@ -50,7 +50,7 @@ const addTaskByIdByProjectId = async ({
       },
     }
   );
-};
+};*/
 
 const toggleProject = async ({ projectId }: { projectId: string }) => {
   return fetch(
@@ -68,7 +68,7 @@ const ProjectService = {
   getAllProjects,
   getProjectById,
   createProject,
-  addTaskByIdByProjectId,
+  /*addTaskByIdByProjectId,*/
   toggleProject,
 };
 

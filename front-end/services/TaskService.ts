@@ -15,12 +15,14 @@ const createTask = async ({
   deadline,
   ownerId,
   tags,
+  projectId,
 }: {
   title: string;
   description: string;
   deadline: string;
   ownerId: number;
   tags: Tag[];
+  projectId: number;
 }) => {
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/tasks", {
     method: "POST",
@@ -33,6 +35,7 @@ const createTask = async ({
       deadline,
       owner: { id: ownerId },
       tags,
+      projectId,
     }),
   });
 };
@@ -44,6 +47,7 @@ const updateTask = async ({
   deadline,
   ownerId,
   tags,
+  projectId,
 }: {
   id: number;
   title: string;
@@ -51,6 +55,7 @@ const updateTask = async ({
   deadline: string;
   ownerId: number;
   tags: Tag[];
+  projectId: number;
 }) => {
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/tasks", {
     method: "PUT",
@@ -64,6 +69,7 @@ const updateTask = async ({
       deadline,
       owner: { id: ownerId },
       tags,
+      projectId,
     }),
   });
 };

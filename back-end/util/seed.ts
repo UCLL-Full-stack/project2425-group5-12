@@ -34,7 +34,20 @@ const main = async () => {
 
     const highpriority = await prisma.tag.create({ data: { title: 'high-priority' } });
 
-    const lab2 = await prisma.task.create({
+    const fullstack = await prisma.project.create({
+        data: {
+            title: 'Full-Stack',
+            description: 'Full-Stack Course',
+            done: false,
+            owner: {
+                connect: { id: johndoe.id },
+            },
+            members: { connect: [{ id: johndoe.id }, { id: janetoe.id }] },
+            tasks: {},
+        },
+    });
+
+    await prisma.task.create({
         data: {
             title: 'Finish lab2',
             description: 'nodejs and express assignment',
@@ -48,19 +61,7 @@ const main = async () => {
                     },
                 ],
             },
-        },
-    });
-
-    await prisma.project.create({
-        data: {
-            title: 'Full-Stack',
-            description: 'Full-Stack Course',
-            done: false,
-            owner: {
-                connect: { id: johndoe.id },
-            },
-            members: { connect: [{ id: johndoe.id }, { id: janetoe.id }] },
-            tasks: { connect: [{ id: lab2.id }] },
+            project: { connect: { id: fullstack.id } },
         },
     });
 };

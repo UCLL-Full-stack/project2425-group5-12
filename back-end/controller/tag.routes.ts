@@ -40,9 +40,9 @@ const tagRouter = express.Router();
  *                            items:
  *                                $ref: "#/components/schemas/Tag"
  */
-tagRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
+tagRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const tags = tagService.getAllTags();
+        const tags = await tagService.getAllTags();
         res.status(200).json(tags);
     } catch (error) {
         next(error);
@@ -69,10 +69,10 @@ tagRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
  *             schema:
  *               $ref: '#/components/schemas/Tag'
  */
-tagRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
+tagRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tag = <TagInput>req.body;
-        const result = tagService.createTag(tag);
+        const result = await tagService.createTag(tag);
         res.status(201).json(result);
     } catch (error) {
         next(error);

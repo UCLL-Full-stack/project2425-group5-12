@@ -39,7 +39,8 @@ model Task {
   ownerId     Int
   owner       User       @relation("TaskOwner", fields: [ownerId], references: [id]) 
   tags        Tag[]   
-  projects Project[]  
+  projectId   Int      
+  project     Project  @relation("ProjectTasks", fields: [projectId], references: [id])
 }
 
 model Project {
@@ -49,6 +50,6 @@ model Project {
   done        Boolean
   ownerId     Int
   owner       User       @relation("ProjectOwner", fields: [ownerId], references: [id])
-  tasks       Task[]
+  tasks       Task[]     @relation("ProjectTasks")
   members     User[]     @relation("ProjectMember")
 }

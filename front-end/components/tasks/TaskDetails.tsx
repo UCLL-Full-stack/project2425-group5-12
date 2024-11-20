@@ -25,10 +25,6 @@ const TaskDetails: React.FC<Props> = ({
     setRerenderKey(rerenderKey + 1);
   };
 
-  useEffect(() => {
-    handleProjectToggle();
-  }, []);
-
   return (
     <>
       {task && (

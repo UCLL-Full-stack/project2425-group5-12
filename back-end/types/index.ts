@@ -17,6 +17,7 @@ type TaskInput = {
     deadline: Date;
     owner: UserInput;
     tags: TagInput[];
+    projectId: number;
 };
 
 type ProjectInput = {

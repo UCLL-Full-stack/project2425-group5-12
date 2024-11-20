@@ -15,6 +15,7 @@ export type Task = {
   deadline: Date;
   owner: User;
   tags: Tag[];
+  projectId: number;
 };
 
 export type Project = {

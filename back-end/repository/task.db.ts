@@ -4,32 +4,93 @@ import { User } from '../model/user';
 import { Tag } from '../model/tag';
 import database from './database';
 
-let currentId = 1;
-const tasks: Task[] = [];
-
 const getAllTasks = async (): Promise<Task[]> => {
-    const taskPrisma = await database.task.findMany({
-        include: { owner: true}
-    });
-    return taskPrisma.map((taskPrisma) => Task.from(taskPrisma));
+    try {
+        const tasksPrisma = await database.task.findMany({
+            include: { owner: true, tags: true },
+        });
+        return tasksPrisma.map((taskPrisma) => Task.from(taskPrisma));
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
 };
 
 const createTask = async (task: Task): Promise<Task> => {
-    await getAllTasks();
-    task.setId(currentId++);
-    tasks.push(task);
-    return task;
+    try {
+        const taskPrisma = await database.task.create({
+            data: {
+                title: task.getTitle(),
+                description: task.getDescription(),
+                deadline: task.getDeadline(),
+                done: task.getDone(),
+                owner: {
+                    connect: {
+                        id: task.getOwner().getId(),
+                    },
+                },
+                tags: {
+                    connect: task.getTags().map((tag) => ({
+                        id: tag.getId(),
+                    })),
+                },
+                project: { connect: { id: task.getProjectId() } },
+            },
+            include: {
+                tags: true,
+                owner: true,
+                project: true,
+            },
+        });
+        return Task.from(taskPrisma);
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
 };
 
-const getTaskById = async ({ id }: { id: number }): Task | null => {
-    const task = tasks.find((task) => task.getId() === id);
-    return task || null;
+const getTaskById = async ({ id }: { id: number }): Promise<Task | null> => {
+    try {
+        const taskPrisma = await database.task.findUnique({
+            where: { id },
+            include: { owner: true, tags: true },
+        });
+        if (taskPrisma) {
+            return Task.from(taskPrisma);
+        }
+        return null;
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
 };
 
-const changeTask = async (changedTask: Task): Promise<Task> => {
-    const index = tasks.findIndex((task) => task.getId() === changedTask.getId());
-    tasks[index] = changedTask;
-    return changedTask;
+const updateTask = async (changedTask: Task): Promise<Task> => {
+    try {
+        const taskPrisma = await database.task.update({
+            where: { id: changedTask.getId() },
+            data: {
+                title: changedTask.getTitle(),
+                description: changedTask.getDescription(),
+                deadline: changedTask.getDeadline(),
+                done: changedTask.getDone(),
+                owner: {
+                    connect: {
+                        id: changedTask.getOwner().getId(),
+                    },
+                },
+                tags: {
+                    set: changedTask.getTags().map((tag) => ({
+                        id: tag.getId(),
+                    })),
+                },
+            },
+            include: {
+                tags: true,
+                owner: true,
+            },
+        });
+        return Task.from(taskPrisma);
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
 };
 
-export default { getAllTasks, createTask, getTaskById, changeTask };
+export default { getAllTasks, createTask, getTaskById, updateTask };

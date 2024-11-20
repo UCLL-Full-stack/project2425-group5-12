@@ -1,10 +1,11 @@
 import { DomainError } from './domainError';
 import { Task } from './task';
 import { User } from './user';
-import { 
+import {
     Project as ProjectPrisma,
-    User as UserPrismaPrisma,
-    Task as TaskPrisma
+    User as UserPrisma,
+    Task as TaskPrisma,
+    Tag as TagPrisma,
 } from '@prisma/client';
 
 export class Project {
@@ -30,8 +31,8 @@ export class Project {
         this.id = project.id;
         this.title = project.title;
         this.description = project.description;
-        this.done = false;
-        this.tasks = project.tasks || [];
+        this.done = project.done ?? false;
+        this.tasks = project.tasks ? [...project.tasks] : [];
         this.owner = project.owner;
         this.members = project.members || [this.owner];
     }
@@ -127,15 +128,19 @@ export class Project {
         tasks,
         members,
         owner,
-    }: ProjectPrisma ) {
+    }: ProjectPrisma & {
+        members: UserPrisma[];
+        owner: UserPrisma;
+        tasks: (TaskPrisma & { owner: UserPrisma; tags: TagPrisma[] })[];
+    }) {
         return new Project({
             id,
             title,
             description,
             done,
-            tasks,
-            members,
-            owner
-        })
+            tasks: tasks.map((task) => Task.from(task)),
+            members: members.map((member) => User.from(member)),
+            owner: User.from(owner),
+        });
     }
 }

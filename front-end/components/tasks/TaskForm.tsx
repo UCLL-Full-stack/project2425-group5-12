@@ -37,7 +37,6 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
   const [tagError, setTagError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
 
-  const taskOwnerId = 1;
   const router = useRouter();
   const { projectId, taskId } = router.query;
 
@@ -116,8 +115,9 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
         title: taskTitle,
         description: taskDescription,
         deadline: taskDeadline,
-        ownerId: taskOwnerId,
+        ownerId: Number(sessionStorage.getItem("userId")),
         tags: taskTags,
+        projectId: Number(projectId),
       });
       const updatedTaskResponse = await response.json();
       if (response.ok) {
@@ -140,28 +140,17 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
         title: taskTitle,
         description: taskDescription,
         deadline: taskDeadline,
-        ownerId: taskOwnerId,
+        ownerId: Number(sessionStorage.getItem("userId")),
         tags: taskTags,
+        projectId: Number(projectId),
       });
       const createdTaskResponse = await response.json();
       if (response.ok) {
-        const response = await ProjectService.addTaskByIdByProjectId({
-          projectId: projectId as string,
-          taskId: createdTaskResponse.id as string,
+        setStatusMessage({
+          status: "succes",
+          message: "Task succesfully created!",
         });
-        const projectResponse = await response.json();
-        if (response.ok) {
-          setStatusMessage({
-            status: "succes",
-            message: "Task succesfully craeted!",
-          });
-          setTimeout(() => router.push(`/projects/${projectId}`), 2000);
-        } else {
-          setStatusMessage({
-            status: "error",
-            message: projectResponse.message,
-          });
-        }
+        setTimeout(() => router.push(`/projects/${projectId}`), 2000);
       } else {
         setStatusMessage({
           status: "error",
@@ -235,7 +224,9 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
             <li
               key={tag.id}
               className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-emerald-200 transition-colors"
-              onClick={() => removeTagById(tag.id)}
+              onClick={() => {
+                console.log(taskTags), removeTagById(tag.id);
+              }}
             >
               {tag.title}
             </li>

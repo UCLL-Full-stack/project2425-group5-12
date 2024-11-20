@@ -44,7 +44,7 @@ const LoginForm: React.FC = () => {
     const loggedInUser = await response.json();
     if (response.ok) {
       setStatusMessage({ status: "succes", message: "Logged in succesfully!" });
-      sessionStorage.setItem("userId", loggedInUser.id);
+      sessionStorage.setItem("userId", loggedInUser.userId);
       sessionStorage.setItem("loggedIn", "true");
       setTimeout(() => router.push("/"), 2000);
     } else {
