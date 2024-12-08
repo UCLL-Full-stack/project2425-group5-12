@@ -1,6 +1,6 @@
 import { Project } from "@/types";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   projects: Array<Project>;

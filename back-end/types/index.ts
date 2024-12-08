@@ -1,4 +1,4 @@
-type Role = 'ADMIN' | 'USER';
+type Role = 'ADMIN' | 'USER' | 'PROJECT_MANAGER';
 
 type UserInput = {
     id?: number;

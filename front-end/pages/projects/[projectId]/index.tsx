@@ -4,12 +4,10 @@ import { Project } from "@/types";
 import ProjectService from "@/services/ProjectService";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import Header from "@/components/header";
+import useSWR, { mutate } from "swr";
+import useInterval from "use-interval";
 
 const ProjectDetailsOverview: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [rerenderKey, setRerenderKey] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const router = useRouter();
   const { projectId } = router.query;
 
@@ -17,15 +15,21 @@ const ProjectDetailsOverview: React.FC = () => {
     const response = await ProjectService.getProjectById(projectId as string);
     const project = await response.json();
     if (response.ok) {
-      setSelectedProject(project);
+      return project;
     } else {
-      setErrorMessage(project.message);
+      throw new Error(project.message);
     }
   };
 
-  useEffect(() => {
-    if (projectId) getProjectById();
-  }, [projectId, rerenderKey]);
+  const {
+    data: selectedProject,
+    isLoading,
+    error: errorMessage,
+  } = useSWR<Project>(`projects/${projectId}`, getProjectById);
+
+  useInterval(() => {
+    mutate(`projects/${projectId}`, getProjectById());
+  }, 1000);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -43,14 +47,11 @@ const ProjectDetailsOverview: React.FC = () => {
         </div>
         {selectedProject && (
           <section className="">
-            <ProjectDetails
-              project={selectedProject}
-              rerenderKey={rerenderKey}
-              setRerenderKey={setRerenderKey}
-            />
+            <ProjectDetails project={selectedProject} />
           </section>
         )}
-        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
+        {errorMessage && <p className="text-red-400">{errorMessage.message}</p>}
+        {isLoading && <p className="text-red-400">Loading...</p>}
       </main>
     </div>
   );

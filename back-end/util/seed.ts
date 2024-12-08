@@ -11,6 +11,9 @@ const main = async () => {
     await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE;`;
 
     await prisma.user.deleteMany();
+    await prisma.project.deleteMany();
+    await prisma.tag.deleteMany();
+    await prisma.task.deleteMany();
 
     const johndoe = await prisma.user.create({
         data: {
@@ -18,7 +21,20 @@ const main = async () => {
             lastName: 'Doe',
             email: 'john.doe@ucll.be',
             password: await bcrypt.hash('john123', 12),
-            role: 'USER',
+            role: 'ADMIN',
+        },
+    });
+
+    await prisma.project.create({
+        data: {
+            title: 'TO DO',
+            description: 'Your default to do list.',
+            done: false,
+            owner: {
+                connect: { id: johndoe.id },
+            },
+            members: { connect: [{ id: johndoe.id }] },
+            tasks: {},
         },
     });
 
@@ -29,6 +45,42 @@ const main = async () => {
             email: 'jane.toe@ucll.be',
             password: await bcrypt.hash('jane123', 12),
             role: 'USER',
+        },
+    });
+
+    await prisma.project.create({
+        data: {
+            title: 'TO DO',
+            description: 'Your default to do list.',
+            done: false,
+            owner: {
+                connect: { id: janetoe.id },
+            },
+            members: { connect: [{ id: janetoe.id }] },
+            tasks: {},
+        },
+    });
+
+    const jackmoe = await prisma.user.create({
+        data: {
+            firstName: 'Jack',
+            lastName: 'Moe',
+            email: 'jack.moe@ucll.be',
+            password: await bcrypt.hash('jack123', 12),
+            role: 'PROJECT_MANAGER',
+        },
+    });
+
+    await prisma.project.create({
+        data: {
+            title: 'TO DO',
+            description: 'Your default to do list.',
+            done: false,
+            owner: {
+                connect: { id: jackmoe.id },
+            },
+            members: { connect: [{ id: jackmoe.id }] },
+            tasks: {},
         },
     });
 
@@ -43,6 +95,19 @@ const main = async () => {
                 connect: { id: johndoe.id },
             },
             members: { connect: [{ id: johndoe.id }, { id: janetoe.id }] },
+            tasks: {},
+        },
+    });
+
+    await prisma.project.create({
+        data: {
+            title: 'Daml',
+            description: 'Data analytics and machine learning',
+            done: false,
+            owner: {
+                connect: { id: jackmoe.id },
+            },
+            members: { connect: [{ id: jackmoe.id }] },
             tasks: {},
         },
     });

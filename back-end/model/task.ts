@@ -140,7 +140,7 @@ export class Task {
             done,
             deadline,
             projectId,
-            owner: User.from(owner),
+            owner: User.fromSafe(owner),
             tags: tags.map((tag) => Tag.from(tag)),
         });
     }

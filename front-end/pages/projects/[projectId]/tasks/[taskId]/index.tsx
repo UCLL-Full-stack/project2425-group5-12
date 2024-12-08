@@ -4,12 +4,10 @@ import TaskService from "@/services/TaskService";
 import { Task } from "@/types";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
+import useInterval from "use-interval";
 
 const TaskDetailsOverview: React.FC = () => {
-  const [selectedTask, setSelectedTask] = useState<Task>();
-  const [rerenderKey, setRerenderKey] = useState<number>(0);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const router = useRouter();
   const { projectId, taskId } = router.query;
 
@@ -17,15 +15,21 @@ const TaskDetailsOverview: React.FC = () => {
     const response = await TaskService.getTaskById(taskId as string);
     const task = await response.json();
     if (response.ok) {
-      setSelectedTask(task);
+      return task;
     } else {
-      setErrorMessage(task.message);
+      throw new Error(task.message);
     }
   };
 
-  useEffect(() => {
-    if (taskId) getTaskById();
-  }, [taskId, rerenderKey]);
+  const {
+    data: selectedTask,
+    isLoading,
+    error: errorMessage,
+  } = useSWR(`/tasks/${taskId}`, getTaskById);
+
+  useInterval(() => {
+    mutate(`/tasks/${taskId}`, getTaskById);
+  }, 1000);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -43,15 +47,10 @@ const TaskDetailsOverview: React.FC = () => {
           </button>
         </div>
         <section className="">
-          {selectedTask && (
-            <TaskDetails
-              task={selectedTask}
-              rerenderKey={rerenderKey}
-              setRerenderKey={setRerenderKey}
-            />
-          )}
+          {selectedTask && <TaskDetails task={selectedTask} />}
         </section>
-        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
+        {errorMessage && <p className="text-red-400">{errorMessage.message}</p>}
+        {isLoading && <p className="text-red-400">Loading...</p>}
       </main>
     </div>
   );

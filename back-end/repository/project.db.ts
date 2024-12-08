@@ -21,6 +21,31 @@ const getAllProjects = async (): Promise<Project[]> => {
     }
 };
 
+const getAllProjectsByMember = async ({
+    memberEmail,
+}: {
+    memberEmail: string;
+}): Promise<Project[]> => {
+    try {
+        const projectsPrisma = await database.project.findMany({
+            where: { members: { some: { email: memberEmail } } },
+            include: {
+                tasks: {
+                    include: {
+                        owner: true,
+                        tags: true,
+                    },
+                },
+                members: true,
+                owner: true,
+            },
+        });
+        return projectsPrisma.map((projectPrisma) => Project.from(projectPrisma));
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
 const createProject = async ({ project }: { project: Project }): Promise<Project> => {
     try {
         const projectPrisma = await database.project.create({
@@ -116,4 +141,10 @@ const getProjectById = async ({ id }: { id: number }): Promise<Project | null> =
     }
 };
 
-export default { getAllProjects, updateProject, createProject, getProjectById };
+export default {
+    getAllProjects,
+    updateProject,
+    createProject,
+    getProjectById,
+    getAllProjectsByMember,
+};

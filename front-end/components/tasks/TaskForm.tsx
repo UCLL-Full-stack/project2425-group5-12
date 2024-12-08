@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import TagService from "@/services/TagService";
 import TagForm from "../tags/TagForm";
+import useSWR, { mutate } from "swr";
+import useInterval from "use-interval";
 
 type Props = {
   task?: Task;
@@ -29,7 +31,6 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
           .replace(" ", "T")
       : ""
   );
-  const [existingTags, setExistingTags] = useState<Array<Tag>>([]);
   const [taskTags, setTaskTags] = useState<Array<Tag>>([]);
   const [titleError, setTitleError] = useState<string>("");
   const [descriptionError, setDescriptionError] = useState<string>("");
@@ -43,8 +44,22 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
   const getTags = async () => {
     const response = await TagService.getAllTags();
     const tags = await response.json();
-    setExistingTags(tags);
+    if (response.ok) {
+      return tags;
+    } else {
+      throw new Error(tags.message);
+    }
   };
+
+  const {
+    data: existingTags,
+    isLoading,
+    error: tagErrorMessage,
+  } = useSWR<Array<Tag>>("existingTags", getTags);
+
+  useInterval(() => {
+    mutate("existingTags", getTags);
+  }, 1000);
 
   const addNewTag = async ({ title }: { title: string }) => {
     setStatusMessage(null);
@@ -73,10 +88,6 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       setTaskTags(task.tags || []);
     }
   }, [task]);
-
-  useEffect(() => {
-    getTags();
-  }, [taskTags]);
 
   const validate = (): boolean => {
     setTitleError("");
@@ -159,7 +170,6 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       }
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -213,10 +223,14 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       <TagForm
         taskTags={taskTags}
         setTaskTags={setTaskTags}
-        existingTags={existingTags}
+        existingTags={existingTags || []}
         addNewTag={addNewTag}
       />
       {tagError && <div className="text-red-400">{tagError}</div>}
+      {tagErrorMessage && (
+        <div className="text-red-400">{tagErrorMessage.message}</div>
+      )}
+      {isLoading && <div className="text-red-400">Loading...</div>}
       <div className="mb-6">
         <p className="text-gray-700 font-medium mb-2">Added Tags</p>
         <ul className="flex flex-wrap gap-2">

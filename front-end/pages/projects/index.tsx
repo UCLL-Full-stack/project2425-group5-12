@@ -4,24 +4,39 @@ import ProjectService from "@/services/ProjectService";
 import { Project } from "@/types";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
+import useInterval from "use-interval";
 
 const Projects: React.FC = () => {
-  const [projects, setProjects] = useState<Array<Project>>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const router = useRouter();
 
   const getAllProjects = async () => {
     const response = await ProjectService.getAllProjects();
     const projects = await response.json();
     if (response.ok) {
-      setProjects(projects);
+      return projects;
     } else {
-      setErrorMessage(projects.message);
+      throw new Error(projects.message);
     }
   };
 
+  const {
+    data: projects,
+    error: errorMessage,
+    isLoading,
+  } = useSWR<Array<Project>>("projectsTable", getAllProjects);
+
+  useInterval(() => {
+    mutate("projectsTable", getAllProjects);
+  }, 1000);
+
   useEffect(() => {
-    getAllProjects();
+    console.log(sessionStorage.getItem("userRole"));
+    const role = sessionStorage.getItem("userRole");
+    if (role) {
+      setUserRole(role);
+    }
   }, []);
 
   return (
@@ -35,18 +50,21 @@ const Projects: React.FC = () => {
         </h1>
 
         <div className="mb-4 flex justify-start">
-          <button
-            onClick={() => router.push(`/projects/createProject`)}
-            className="px-6 py-3 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition ease-in-out duration-300"
-          >
-            New Project
-          </button>
+          {(userRole === "ADMIN" || userRole === "PROJECT_MANAGER") && (
+            <button
+              onClick={() => router.push(`/projects/createProject`)}
+              className="px-6 py-3 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition ease-in-out duration-300"
+            >
+              New Project
+            </button>
+          )}
         </div>
         <section className="mb-8">
           {projects && <ProjectOverviewTable projects={projects} />}
         </section>
-        {errorMessage && <p className="text-red-400">{errorMessage}</p>}
-        {projects.length === 0 && (
+        {errorMessage && <p className="text-red-400">{errorMessage.message}</p>}
+        {isLoading && <p className="text-red-400">Loading...</p>}
+        {!errorMessage && projects && projects.length === 0 && (
           <p className="text-red-400">No projects found!</p>
         )}
       </main>

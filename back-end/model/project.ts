@@ -139,8 +139,8 @@ export class Project {
             description,
             done,
             tasks: tasks.map((task) => Task.from(task)),
-            members: members.map((member) => User.from(member)),
-            owner: User.from(owner),
+            members: members.map((member) => User.fromSafe(member)),
+            owner: User.fromSafe(owner),
         });
     }
 }

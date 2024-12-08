@@ -1,27 +1,32 @@
 /**
  * @swagger
- *   components:
- *    schemas:
- *      Tag:
- *          type: object
- *          properties:
- *            id:
- *              type: number
- *              format: int64
- *            title:
- *              type: string
- *              description: Tag name.
- *      TagInput:
- *          type: object
- *          properties:
- *            title:
- *              type: string
- *              description: Tag name.
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     Tag:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: number
+ *           format: int64
+ *         title:
+ *           type: string
+ *           description: Tag name.
+ *     TagInput:
+ *       type: object
+ *       properties:
+ *         title:
+ *           type: string
+ *           description: Tag name.
  */
+
 import express, { NextFunction, Request, Response } from 'express';
 import tagService from '../service/tag.service';
 import { TagInput } from '../types';
-import { error } from 'console';
 
 const tagRouter = express.Router();
 
@@ -29,16 +34,18 @@ const tagRouter = express.Router();
  * @swagger
  * /tags:
  *   get:
- *       summary: Get a list of all tags.
- *       responses:
- *            200:
- *                description: An array of tags.
- *                content:
- *                    application/json:
- *                        schema:
- *                            type: array
- *                            items:
- *                                $ref: "#/components/schemas/Tag"
+ *     summary: Get a list of all tags.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: An array of tags.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/Tag"
  */
 tagRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,6 +61,8 @@ tagRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
  * /tags:
  *   post:
  *     summary: Post a new tag.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       description: A tagInput object.
  *       required: true

@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import UserService from "@/services/UserService";
 import { StatusMessage } from "@/types";
-import Link from "next/link";
 
-const LoginForm: React.FC = () => {
+const SignUpForm: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [userFirstName, setUserFirstName] = useState<string>("");
+  const [userLastName, setUserLastName] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
+  const [firstNameError, setFirstNameError] = useState<string>("");
+  const [lastNameError, setLastNameError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
   const [userId, setUserId] = useState<string>("");
   const [userRole, setUserRole] = useState<string>("");
@@ -21,6 +24,8 @@ const LoginForm: React.FC = () => {
   const validate = (): boolean => {
     setEmailError("");
     setPasswordError("");
+    setFirstNameError("");
+    setLastNameError("");
     setStatusMessage(null);
 
     if (userEmail.trim() === "") {
@@ -32,32 +37,44 @@ const LoginForm: React.FC = () => {
       setPasswordError("Password is required!");
       return false;
     }
+
+    if (userFirstName.trim() === "") {
+      setFirstNameError("First name is required!");
+      return false;
+    }
+
+    if (userLastName.trim() === "") {
+      setLastNameError("Last name is required!");
+      return false;
+    }
     return true;
   };
 
-  const handleLogin = async (event: React.FormEvent) => {
+  const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!validate()) return;
 
-    const response = await UserService.loginByEmail({
+    const response = await UserService.createUser({
+      firstName: userFirstName,
+      lastName: userLastName,
       email: userEmail,
       password: userPassword,
     });
 
-    const loggedInUser = await response.json();
+    const createdUser = await response.json();
     if (response.ok) {
       setStatusMessage({
         status: "success",
-        message: "Logged in successfully!",
+        message: "Created account succesfully!",
       });
-      setUserId(loggedInUser.userId);
-      setUserRole(loggedInUser.userRole);
-      setToken(loggedInUser.token);
+      setUserId(createdUser.userId);
+      setUserRole(createdUser.userRole);
+      setToken(createdUser.token);
       setLoggedIn(true);
       setTimeout(() => router.push("/projects"), 2000);
     } else {
-      setStatusMessage({ status: "error", message: loggedInUser.message });
+      setStatusMessage({ status: "error", message: createdUser.message });
     }
   };
 
@@ -66,28 +83,68 @@ const LoginForm: React.FC = () => {
     sessionStorage.setItem("userRole", userRole);
     sessionStorage.setItem("loggedIn", String(loggedIn));
     sessionStorage.setItem("token", token);
-  }, [userRole]);
+  }, [userId, userRole, loggedIn, token]);
 
   return (
     <div className="flex items-start justify-center min-h-screen">
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSignUp}
         className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-700 text-center">
-          Login
+          Sign Up
         </h2>
         <div>
           <label
-            htmlFor="email"
+            htmlFor="firstName"
+            className="block text-sm font-medium text-gray-600"
+          >
+            First Name
+          </label>
+          <input
+            type="text"
+            id="firstName"
+            name="first_name"
+            value={userFirstName}
+            autoComplete="off"
+            onChange={(e) => setUserFirstName(e.target.value)}
+            required
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:ring-emerald-500 focus:border-emerald-500"
+          />
+          {firstNameError && (
+            <div className="text-red-400">{firstNameError}</div>
+          )}
+        </div>
+        <div>
+          <label
+            htmlFor="lastName"
+            className="block text-sm font-medium text-gray-600"
+          >
+            Last Name
+          </label>
+          <input
+            type="text"
+            id="lastName"
+            name="last_name"
+            value={userLastName}
+            autoComplete="off"
+            onChange={(e) => setUserLastName(e.target.value)}
+            required
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-gray-700 focus:ring-emerald-500 focus:border-emerald-500"
+          />
+          {lastNameError && <div className="text-red-400">{lastNameError}</div>}
+        </div>
+        <div>
+          <label
+            htmlFor="email_field"
             className="block text-sm font-medium text-gray-600"
           >
             Email
           </label>
           <input
             type="email"
-            id="email"
-            name="email"
+            id="email_field"
+            name="email_field"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
             required
@@ -158,21 +215,11 @@ const LoginForm: React.FC = () => {
           </div>
           {passwordError && <div className="text-red-400">{passwordError}</div>}
         </div>
-        <div className="flex items-center space-x-2">
-          <p>New?</p>
-          <Link
-            href="/signup"
-            className="text-green-600 underline hover:text-green-800"
-          >
-            Create your account
-          </Link>
-        </div>
-
         <button
           type="submit"
           className="w-full py-2 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
-          Login
+          Submit
         </button>
         {statusMessage && (
           <div
@@ -190,4 +237,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm;
+export default SignUpForm;

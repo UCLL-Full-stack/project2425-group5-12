@@ -3,26 +3,21 @@ import { Task } from "@/types";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { mutate } from "swr";
 
 type Props = {
   task: Task;
-  rerenderKey: number;
-  setRerenderKey: Dispatch<SetStateAction<number>>;
 };
 
-const TaskDetails: React.FC<Props> = ({
-  task,
-  rerenderKey,
-  setRerenderKey,
-}: Props) => {
+const TaskDetails: React.FC<Props> = ({ task }: Props) => {
   const [taskCheckHover, setTaskCheckHover] = useState<boolean>(false);
 
   const router = useRouter();
   const { projectId, taskId } = router.query;
 
-  const handleProjectToggle = async () => {
+  const handleTaskToggle = async () => {
     await TaskService.toggleTask({ taskId: task.id.toString() });
-    setRerenderKey(rerenderKey + 1);
+    mutate(`/tasks/${taskId}`);
   };
 
   return (
@@ -34,7 +29,7 @@ const TaskDetails: React.FC<Props> = ({
               {task.title}
             </h2>
             <button
-              onClick={() => handleProjectToggle()}
+              onClick={() => handleTaskToggle()}
               onMouseEnter={() => setTaskCheckHover(true)}
               onMouseLeave={() => setTaskCheckHover(false)}
             >
@@ -77,12 +72,6 @@ const TaskDetails: React.FC<Props> = ({
                   Description:
                 </td>
                 <td className="py-3">{task.description}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-3 font-semibold text-gray-600">Status:</td>
-                <td className="py-3">
-                  {task.done ? "Completed" : "Incomplete"}
-                </td>
               </tr>
               <tr className="border-b">
                 <td className="py-3 font-semibold text-gray-600">Deadline:</td>

@@ -7,7 +7,7 @@ export class User {
     private firstName: string;
     private lastName: string;
     private email: string;
-    private password: string;
+    private password?: string;
     private role: Role;
 
     constructor(user: {
@@ -15,7 +15,7 @@ export class User {
         firstName: string;
         lastName: string;
         email: string;
-        password: string;
+        password?: string;
         role: Role;
     }) {
         this.validate(user);
@@ -44,7 +44,7 @@ export class User {
         return this.email;
     }
 
-    getPassword(): string {
+    getPassword(): string | undefined {
         return this.password;
     }
 
@@ -52,13 +52,7 @@ export class User {
         return this.role;
     }
 
-    validate(user: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        password: string;
-        role: Role;
-    }) {
+    validate(user: { firstName: string; lastName: string; email: string; role: Role }) {
         if (!user.firstName?.trim()) {
             throw new DomainError('First name is required');
         }
@@ -67,9 +61,6 @@ export class User {
         }
         if (!user.email?.trim()) {
             throw new DomainError('Email is required');
-        }
-        if (!user.password?.trim()) {
-            throw new DomainError('Password is required');
         }
         if (!user.role) {
             throw new DomainError('Role is required');
@@ -89,5 +80,9 @@ export class User {
 
     static from({ id, firstName, lastName, email, password, role }: userPrisma) {
         return new User({ id, firstName, lastName, email, password, role });
+    }
+
+    static fromSafe({ id, firstName, lastName, email, role }: userPrisma): User {
+        return new User({ id, firstName, lastName, email, role });
     }
 }

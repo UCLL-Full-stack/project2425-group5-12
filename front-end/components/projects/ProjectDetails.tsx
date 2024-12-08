@@ -3,21 +3,19 @@ import TaskService from "@/services/TaskService";
 import { Project, Task } from "@/types";
 import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import MemberForm from "./MemberForm";
+import { mutate } from "swr";
 
 type Props = {
   project: Project;
-  rerenderKey: number;
-  setRerenderKey: Dispatch<SetStateAction<number>>;
 };
 
-const ProjectDetails: React.FC<Props> = ({
-  project,
-  rerenderKey,
-  setRerenderKey,
-}: Props) => {
+const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
   const [taskToggleId, setTaskToggleId] = useState<string>("");
   const [taskHoverId, setTaskHoverId] = useState<string>("");
   const [projectHover, setProjectHover] = useState<boolean>(false);
+  const [showMemberForm, setShowMemberForm] = useState<boolean>(false);
+  const [showMemberButton, setShowMemberButton] = useState<boolean>(false);
 
   const router = useRouter();
   const { projectId } = router.query;
@@ -26,12 +24,12 @@ const ProjectDetails: React.FC<Props> = ({
     await TaskService.toggleTask({
       taskId: taskToggleId,
     });
-    setRerenderKey(rerenderKey + 1);
+    mutate(`projects/${projectId}`);
   };
 
   const handleProjectToggle = async () => {
     await ProjectService.toggleProject({ projectId: project.id.toString() });
-    setRerenderKey(rerenderKey + 1);
+    mutate(`projects/${projectId}`);
   };
 
   useEffect(() => {
@@ -39,6 +37,16 @@ const ProjectDetails: React.FC<Props> = ({
       handleTaskToggle();
     }
   }, [taskToggleId]);
+
+  useEffect(() => {
+    const userRole = sessionStorage.getItem("userRole");
+    if (userRole != "USER") {
+      setShowMemberButton(true);
+    }
+    if (project.title === "TO DO") {
+      setShowMemberButton(false);
+    }
+  });
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -94,12 +102,6 @@ const ProjectDetails: React.FC<Props> = ({
               <td className="px-4 py-2 text-gray-700">{project.description}</td>
             </tr>
             <tr className="border-b">
-              <td className="px-4 py-2 font-medium text-gray-600">Status:</td>
-              <td className="px-4 py-2 text-gray-700">
-                {project.done.toString()}
-              </td>
-            </tr>
-            <tr className="border-b">
               <td className="px-4 py-2 font-medium text-gray-600">Owner:</td>
               <td className="px-4 py-2 text-gray-700">
                 {project.owner.firstName + " " + project.owner.lastName}
@@ -115,7 +117,6 @@ const ProjectDetails: React.FC<Props> = ({
               <tr className="border-b bg-gray-100">
                 <th className=""></th>
                 <th className="px-4 py-2 font-medium text-gray-600">Title</th>
-                <th className="px-4 py-2 font-medium text-gray-600">Status</th>
                 <th className="px-4 py-2 font-medium text-gray-600">
                   Deadline
                 </th>
@@ -184,15 +185,12 @@ const ProjectDetails: React.FC<Props> = ({
                       </button>
                     </td>
                     <td
-                      className="px-4 py-2 text-gray-700"
+                      className="px-4 py-2 text-gray-700 hover:underline"
                       onClick={() =>
                         router.push(`/projects/${projectId}/tasks/${task.id}`)
                       }
                     >
                       {task.title}
-                    </td>
-                    <td className="px-4 py-2 text-gray-700">
-                      {task.done.toString()}
                     </td>
                     <td className="px-4 py-2 text-gray-700">
                       {new Date(task.deadline).toLocaleString()}
@@ -215,8 +213,6 @@ const ProjectDetails: React.FC<Props> = ({
             Add Task
           </button>
         </div>
-
-        {/* Project Members Table */}
         {project.members.length > 0 && (
           <>
             <h3 className="text-xl font-semibold text-gray-700 mt-6">
@@ -226,10 +222,10 @@ const ProjectDetails: React.FC<Props> = ({
               <thead>
                 <tr className="border-b bg-gray-100">
                   <th className="px-4 py-2 font-medium text-gray-600">
-                    Firstname
+                    First name
                   </th>
                   <th className="px-4 py-2 font-medium text-gray-600">
-                    Lastname
+                    Last name
                   </th>
                   <th className="px-4 py-2 font-medium text-gray-600">Email</th>
                 </tr>
@@ -248,6 +244,22 @@ const ProjectDetails: React.FC<Props> = ({
                 ))}
               </tbody>
             </table>
+            <div className="mt-6">
+              {showMemberButton && (
+                <button
+                  onClick={() => setShowMemberForm(true)}
+                  className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  Add Member
+                </button>
+              )}
+              {showMemberForm && (
+                <MemberForm
+                  addedUsers={project.members}
+                  onClose={() => setShowMemberForm(false)}
+                ></MemberForm>
+              )}
+            </div>
           </>
         )}
       </div>

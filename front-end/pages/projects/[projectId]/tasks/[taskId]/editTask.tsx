@@ -4,23 +4,32 @@ import TaskService from "@/services/TaskService";
 import { Task } from "@/types";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
+import useInterval from "use-interval";
 
 const editTask: React.FC = () => {
-  const [selectedTask, setSelectedTask] = useState<Task>();
-
   const router = useRouter();
   const { projectId, taskId } = router.query;
 
-  // Fetch task details based on taskId
   const getTaskById = async () => {
     const response = await TaskService.getTaskById(taskId as string);
     const task = await response.json();
-    setSelectedTask(task);
+    if (response.ok) {
+      return task;
+    } else {
+      throw new Error(task.message);
+    }
   };
 
-  useEffect(() => {
-    if (taskId) getTaskById();
-  }, [taskId]);
+  const {
+    data: selectedTask,
+    isLoading,
+    error: errorMessage,
+  } = useSWR(`/tasks/${taskId}`, getTaskById);
+
+  useInterval(() => {
+    mutate(`/tasks/${taskId}`, getTaskById);
+  }, 1000);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -42,6 +51,8 @@ const editTask: React.FC = () => {
         <section className="">
           {selectedTask && <TaskForm task={selectedTask} />}
         </section>
+        {errorMessage && <p className="text-red-400">{errorMessage.message}</p>}
+        {isLoading && <p className="text-red-400">Loading...</p>}
       </main>
     </div>
   );

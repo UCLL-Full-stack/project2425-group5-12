@@ -1,45 +1,50 @@
 import ProjectService from "@/services/ProjectService";
 import { Project } from "@/types";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
 
 const Header: React.FC = () => {
-  const [projects, setProjects] = useState<Array<Project>>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoggedIn, setIsloggedIn] = useState<boolean>(false);
-
-  const router = useRouter();
+  const [userRole, setUserRole] = useState<string>("");
 
   const getAllProjects = async () => {
-    const response = await ProjectService.getAllProjects();
-    const projects = await response.json();
-    if (response.ok) {
-      setProjects(projects);
-    } else {
-      setErrorMessage(projects.message);
+    if (isLoggedIn) {
+      const response = await ProjectService.getAllProjects();
+      const projects = await response.json();
+      if (response.ok) {
+        return projects;
+      } else {
+        throw new Error(projects.message);
+      }
     }
   };
 
-  useEffect(() => {
-    getAllProjects();
-  }, []);
+  const {
+    data: projectsHeader,
+    isLoading,
+    error: errorMessage,
+  } = useSWR<Array<Project>>("projectsHeader", getAllProjects);
+
+  setInterval(() => {
+    if (isLoggedIn) {
+      mutate("projectsHeader");
+    }
+  }, 1000);
 
   useEffect(() => {
     const isLoggedIn = sessionStorage.getItem("loggedIn");
-    if (!isLoggedIn) {
-      router.push("/login");
+    const role = sessionStorage.getItem("userRole");
+    if (isLoggedIn === "false") {
     } else {
       setIsloggedIn(true);
+      if (role) setUserRole(role);
     }
   }, []);
 
   return (
     <aside className="fixed top-0 left-0 w-full md:w-[12rem] bg-emerald-900 text-white z-50 shadow-lg md:h-screen flex flex-col items-center justify-between p-6">
-      <Link
-        className="mb-4 flex items-center justify-center group"
-        href={isLoggedIn ? "/" : "/login"}
-      >
+      <Link className="mb-4 flex items-center justify-center group" href="/">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -50,45 +55,53 @@ const Header: React.FC = () => {
           <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
         </svg>
       </Link>
-      <Link
-        className="flex mb-8 items-center justify-center group"
-        href={isLoggedIn ? "/projects/createProject" : "/login"}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2.5"
-          stroke="currentColor"
-          className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
+      {(userRole === "ADMIN" || userRole === "PROJECT_MANAGER") && (
+        <Link
+          className="flex mb-8 items-center justify-center group"
+          href={isLoggedIn ? "/projects/createProject" : "/login"}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
-        </svg>
-      </Link>
-      <Link
-        className="flex text-2xl items-center justify-center hover:scale-110 hover:text-emerald-300 transition-transform"
-        href={isLoggedIn ? "/projects" : "/login"}
-      >
-        My Projects:
-      </Link>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2.5"
+            stroke="currentColor"
+            className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+        </Link>
+      )}
+      {isLoggedIn && (
+        <Link
+          className="flex text-2xl items-center justify-center hover:scale-110 hover:text-emerald-300 transition-transform"
+          href={isLoggedIn ? "/projects" : "/login"}
+        >
+          My Projects:
+        </Link>
+      )}
       <div className="flex-1 md:mt-4 overflow-y-scroll scrollbar-hidden">
         <ul className="flex flex-col gap-4 text-white text-sm">
-          {projects &&
-            projects.map((project) => (
+          {isLoggedIn &&
+            projectsHeader &&
+            projectsHeader.map((project) => (
               <li key={project.id}>
                 <Link
-                  href={isLoggedIn ? `/projects/${project.id}` : "/login"}
+                  href={`/projects/${project.id}`}
                   className="flex text-xl items-center justify-center hover:text-emerald-300 transition-transform"
                 >
                   {project.title}
                 </Link>
               </li>
             ))}
-          {errorMessage && <li className="text-red-400">{errorMessage}</li>}
+          {errorMessage && (
+            <li className="text-red-400">{errorMessage.message}</li>
+          )}
+          {isLoading && <li className="text-red-400">Loading...</li>}
         </ul>
       </div>
       {!isLoggedIn && (
@@ -114,7 +127,9 @@ const Header: React.FC = () => {
         <Link
           className="b-0 flex items-center justify-center group"
           href="/login"
-          onClick={() => sessionStorage.removeItem("loggedIn")}
+          onClick={() => {
+            sessionStorage.setItem("loggedIn", "false"), setIsloggedIn(false);
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
