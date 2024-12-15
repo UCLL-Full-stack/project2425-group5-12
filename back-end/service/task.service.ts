@@ -119,6 +119,28 @@ const toggleTaskDoneById = async ({ id }: { id: number }): Promise<Task> => {
     task.switchDone();
     return await taskDb.updateTask(task);
 };
+
+const deleteTaskById = async ({
+    id,
+    userRole,
+    userEmail,
+}: {
+    id: number;
+    userRole: string;
+    userEmail: string;
+}) => {
+    const task = await taskDb.getTaskById({ id });
+    if (!task) throw new Error(`Task with id:${id} not found.`);
+    if (userRole === 'ADMIN') {
+        await taskDb.deleteTaskById(id);
+    } else {
+        const user = await userDb.getUserByEmail({ email: userEmail });
+        if (!user) throw new Error(`User with id:${id} not found.`);
+        if (user.getId() != task.getOwner().getId()) throw new Error(`User not owner of task.`);
+        await taskDb.deleteTaskById(id);
+    }
+};
+
 export default {
     getAllTasks,
     createTask,
@@ -126,4 +148,5 @@ export default {
     toggleTaskDoneById,
     addTagByIdByTaskId,
     updateTask,
+    deleteTaskById,
 };

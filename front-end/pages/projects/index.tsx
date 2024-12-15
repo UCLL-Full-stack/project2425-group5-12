@@ -1,4 +1,4 @@
-import Header from "@/components/header";
+import Header from "@/components/ui/header";
 import ProjectOverviewTable from "@/components/projects/ProjectsOverviewTable";
 import ProjectService from "@/services/ProjectService";
 import { Project } from "@/types";
@@ -20,6 +20,13 @@ const Projects: React.FC = () => {
       throw new Error(projects.message);
     }
   };
+
+  useEffect(() => {
+    const loggedIn = sessionStorage.getItem("loggedIn");
+    if (loggedIn === "false") {
+      router.push("/login");
+    }
+  }, []);
 
   const {
     data: projects,

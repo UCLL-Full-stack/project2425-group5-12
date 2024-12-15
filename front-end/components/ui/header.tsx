@@ -1,46 +1,50 @@
 import ProjectService from "@/services/ProjectService";
 import { Project } from "@/types";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 const Header: React.FC = () => {
-  const [isLoggedIn, setIsloggedIn] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string>("");
-
-  const getAllProjects = async () => {
-    if (isLoggedIn) {
-      const response = await ProjectService.getAllProjects();
-      const projects = await response.json();
-      if (response.ok) {
-        return projects;
-      } else {
-        throw new Error(projects.message);
-      }
+  const router = useRouter();
+  const fetchProjects = async () => {
+    const response = await ProjectService.getAllProjects();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
     }
+    return response.json();
   };
 
   const {
-    data: projectsHeader,
+    data: projects,
+    error,
     isLoading,
-    error: errorMessage,
-  } = useSWR<Array<Project>>("projectsHeader", getAllProjects);
-
-  setInterval(() => {
-    if (isLoggedIn) {
-      mutate("projectsHeader");
+  } = useSWR<Array<Project>>(
+    isLoggedIn ? "projectsHeader" : null,
+    isLoggedIn ? fetchProjects : null,
+    {
+      refreshInterval: 1000,
     }
-  }, 1000);
+  );
 
   useEffect(() => {
-    const isLoggedIn = sessionStorage.getItem("loggedIn");
-    const role = sessionStorage.getItem("userRole");
-    if (isLoggedIn === "false") {
-    } else {
-      setIsloggedIn(true);
-      if (role) setUserRole(role);
-    }
+    const loggedIn = sessionStorage.getItem("loggedIn") === "true";
+    const role = sessionStorage.getItem("userRole") || "";
+    setIsLoggedIn(loggedIn);
+    setUserRole(role);
   }, []);
+
+  const handleLogout = () => {
+    sessionStorage.setItem("loggedIn", "false");
+    sessionStorage.removeItem("userRole");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userID");
+    router.push("/login ");
+    setIsLoggedIn(false);
+  };
 
   return (
     <aside className="fixed top-0 left-0 w-full md:w-[12rem] bg-emerald-900 text-white z-50 shadow-lg md:h-screen flex flex-col items-center justify-between p-6">
@@ -58,7 +62,7 @@ const Header: React.FC = () => {
       {(userRole === "ADMIN" || userRole === "PROJECT_MANAGER") && (
         <Link
           className="flex mb-8 items-center justify-center group"
-          href={isLoggedIn ? "/projects/createProject" : "/login"}
+          href="/projects/createProject"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +83,7 @@ const Header: React.FC = () => {
       {isLoggedIn && (
         <Link
           className="flex text-2xl items-center justify-center hover:scale-110 hover:text-emerald-300 transition-transform"
-          href={isLoggedIn ? "/projects" : "/login"}
+          href="/projects"
         >
           My Projects:
         </Link>
@@ -87,8 +91,7 @@ const Header: React.FC = () => {
       <div className="flex-1 md:mt-4 overflow-y-scroll scrollbar-hidden">
         <ul className="flex flex-col gap-4 text-white text-sm">
           {isLoggedIn &&
-            projectsHeader &&
-            projectsHeader.map((project) => (
+            projects?.map((project) => (
               <li key={project.id}>
                 <Link
                   href={`/projects/${project.id}`}
@@ -98,9 +101,7 @@ const Header: React.FC = () => {
                 </Link>
               </li>
             ))}
-          {errorMessage && (
-            <li className="text-red-400">{errorMessage.message}</li>
-          )}
+          {error && <li className="text-red-400">{error.message}</li>}
           {isLoading && <li className="text-red-400">Loading...</li>}
         </ul>
       </div>
@@ -116,20 +117,17 @@ const Header: React.FC = () => {
             className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
           >
             <path
-              fill-rule="evenodd"
+              fillRule="evenodd"
               d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-              clip-rule="evenodd"
+              clipRule="evenodd"
             />
           </svg>
         </Link>
       )}
       {isLoggedIn && (
-        <Link
+        <button
           className="b-0 flex items-center justify-center group"
-          href="/login"
-          onClick={() => {
-            sessionStorage.setItem("loggedIn", "false"), setIsloggedIn(false);
-          }}
+          onClick={handleLogout}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -138,12 +136,12 @@ const Header: React.FC = () => {
             className="group-hover:scale-110 group-hover:text-emerald-300 text-white h-10 w-10 transition-transform"
           >
             <path
-              fill-rule="evenodd"
+              fillRule="evenodd"
               d="M16.5 3.75a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5h-6a1.5 1.5 0 0 1-1.5-1.5V15a.75.75 0 0 0-1.5 0v3.75a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5.25a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3V9A.75.75 0 1 0 9 9V5.25a1.5 1.5 0 0 1 1.5-1.5h6ZM5.78 8.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 0 0 0 1.06l3 3a.75.75 0 0 0 1.06-1.06l-1.72-1.72H15a.75.75 0 0 0 0-1.5H4.06l1.72-1.72a.75.75 0 0 0 0-1.06Z"
-              clip-rule="evenodd"
+              clipRule="evenodd"
             />
           </svg>
-        </Link>
+        </button>
       )}
     </aside>
   );

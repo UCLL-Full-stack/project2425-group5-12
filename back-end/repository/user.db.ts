@@ -7,6 +7,7 @@ const getUserById = async ({ id }: { id: number }): Promise<User | null> => {
         if (!userPrisma) return null;
         return User.from(userPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -17,6 +18,7 @@ const getUserByEmail = async ({ email }: { email: string }): Promise<User | null
         if (!userPrisma) return null;
         return User.from(userPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -26,6 +28,7 @@ const getAllUsers = async (): Promise<User[]> => {
         const usersPrisma = await database.user.findMany();
         return usersPrisma.map((userPrisma) => User.from(userPrisma));
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -43,6 +46,7 @@ const createUser = async (user: User): Promise<User> => {
         });
         return User.from(userPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };

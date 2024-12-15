@@ -85,7 +85,7 @@ const taskRouter = express.Router();
  *             $ref: '#/components/schemas/TaskInput'
  *     responses:
  *       200:
- *         description: Created task.
+ *         description: Created task message.
  *         content:
  *           application/json:
  *             schema:
@@ -117,7 +117,7 @@ taskRouter.post('/', async (req: Request, res: Response, next: NextFunction) => 
  *             $ref: '#/components/schemas/TaskInput'
  *     responses:
  *       200:
- *         description: Changed task.
+ *         description: Changed task message.
  *         content:
  *           application/json:
  *             schema:
@@ -204,7 +204,7 @@ taskRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) =
  *         description: The task's id.
  *     responses:
  *       200:
- *         description: A changed task object.
+ *         description: A changed task object message.
  *         content:
  *           application/json:
  *             schema:
@@ -212,12 +212,47 @@ taskRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) =
  */
 taskRouter.put('/:id/toggle', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const task = await taskService.toggleTaskDoneById({ id: Number(req.params.id) });
+        await taskService.toggleTaskDoneById({ id: Number(req.params.id) });
         res.status(200).json({ message: 'Task status toggled succesfully.' });
     } catch (error) {
         next(error);
     }
 });
+
+/**
+ * @swagger
+ * /tasks/{id}:
+ *   delete:
+ *     summary: Delete task.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The task's id.
+ *     responses:
+ *       200:
+ *         description: A deleted task object message.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/MessageResponse"
+ */
+taskRouter.delete(
+    '/:id',
+    async (req: Request & { auth?: any }, res: Response, next: NextFunction) => {
+        try {
+            const { userRole, userEmail } = req.auth;
+            await taskService.deleteTaskById({ id: Number(req.params.id), userRole, userEmail });
+            res.status(200).json({ message: 'Task deleted succesfully.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 /**
  * @swagger
@@ -241,7 +276,7 @@ taskRouter.put('/:id/toggle', async (req: Request, res: Response, next: NextFunc
  *         description: The tag id.
  *     responses:
  *       200:
- *         description: A changed task object.
+ *         description: A changed task object message.
  *         content:
  *           application/json:
  *             schema:
@@ -249,7 +284,7 @@ taskRouter.put('/:id/toggle', async (req: Request, res: Response, next: NextFunc
  */
 taskRouter.put('/:taskId/tags/:tagId', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const task = await taskService.addTagByIdByTaskId({
+        await taskService.addTagByIdByTaskId({
             taskId: Number(req.params.taskId),
             tagId: Number(req.params.tagId),
         });

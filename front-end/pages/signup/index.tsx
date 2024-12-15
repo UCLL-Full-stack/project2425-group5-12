@@ -1,7 +1,5 @@
-import Header from "@/components/header";
-import LoginForm from "@/components/login/LoginForm";
-import ProjectForm from "@/components/projects/ProjectForm";
-import { useRouter } from "next/router";
+import Header from "@/components/ui/header";
+import SignUpForm from "@/components/signup/signUpForm";
 
 const LoginPage: React.FC = () => {
   return (
@@ -11,7 +9,7 @@ const LoginPage: React.FC = () => {
       </div>
       <main className="flex-1 p-8">
         <section className="">
-          <LoginForm />
+          <SignUpForm />
         </section>
       </main>
     </div>

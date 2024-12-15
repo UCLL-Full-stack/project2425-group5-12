@@ -15,8 +15,17 @@ const getAllProjects = async (): Promise<Project[]> => {
                 owner: true,
             },
         });
-        return projectsPrisma.map((projectPrisma) => Project.from(projectPrisma));
+
+        return projectsPrisma.map((projectPrisma) => {
+            try {
+                return Project.from(projectPrisma);
+            } catch (error) {
+                console.error('Error mapping project:', error);
+                throw new Error('Failed to transform project data.');
+            }
+        });
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -42,6 +51,7 @@ const getAllProjectsByMember = async ({
         });
         return projectsPrisma.map((projectPrisma) => Project.from(projectPrisma));
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -77,6 +87,7 @@ const createProject = async ({ project }: { project: Project }): Promise<Project
         });
         return Project.from(projectPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -113,6 +124,7 @@ const updateProject = async (projectToChange: Project): Promise<Project> => {
         });
         return Project.from(projectPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -137,6 +149,7 @@ const getProjectById = async ({ id }: { id: number }): Promise<Project | null> =
         }
         return null;
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };

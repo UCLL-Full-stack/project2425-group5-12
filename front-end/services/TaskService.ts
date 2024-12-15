@@ -1,9 +1,20 @@
 import { Tag } from "@/types";
 
-const getTaskById = async (id: string) => {
+const getTaskById = async ({ id }: { id: string }) => {
   const token = sessionStorage.getItem("token");
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/tasks/" + id, {
     method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+const deleteTaskById = async ({ id }: { id: string }) => {
+  const token = sessionStorage.getItem("token");
+  return fetch(process.env.NEXT_PUBLIC_API_URL + "/tasks/" + id, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -96,6 +107,7 @@ const TaskService = {
   createTask,
   toggleTask,
   updateTask,
+  deleteTaskById,
 };
 
 export default TaskService;

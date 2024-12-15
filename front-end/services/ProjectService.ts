@@ -9,7 +9,7 @@ const getAllProjects = async () => {
   });
 };
 
-const getProjectById = async (id: string) => {
+const getProjectById = async ({ id }: { id: string }) => {
   const token = sessionStorage.getItem("token");
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/projects/" + id, {
     method: "GET",

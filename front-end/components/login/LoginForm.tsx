@@ -62,11 +62,13 @@ const LoginForm: React.FC = () => {
   };
 
   useEffect(() => {
-    sessionStorage.setItem("userId", userId);
-    sessionStorage.setItem("userRole", userRole);
-    sessionStorage.setItem("loggedIn", String(loggedIn));
-    sessionStorage.setItem("token", token);
-  }, [userRole]);
+    if (userId && userRole && token) {
+      sessionStorage.setItem("userId", userId);
+      sessionStorage.setItem("userRole", userRole);
+      sessionStorage.setItem("loggedIn", String(loggedIn));
+      sessionStorage.setItem("token", token);
+    }
+  }, [userId, userRole, token, loggedIn]);
 
   return (
     <div className="flex items-start justify-center min-h-screen">

@@ -176,7 +176,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       className="max-w-lg mx-auto p-8 bg-white shadow-md rounded-lg"
     >
       <h2 className="text-2xl font-semibold text-gray-700 text-center">
-        Create New Task
+        {task ? "Update Task" : "Create New Task"}
       </h2>
       <div className="mb-6">
         <label className="block text-gray-700 font-medium mb-2">Title</label>

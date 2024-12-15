@@ -1,7 +1,4 @@
-import { set } from 'date-fns';
 import { Task } from '../model/task';
-import { User } from '../model/user';
-import { Tag } from '../model/tag';
 import database from './database';
 
 const getAllTasks = async (): Promise<Task[]> => {
@@ -11,6 +8,7 @@ const getAllTasks = async (): Promise<Task[]> => {
         });
         return tasksPrisma.map((taskPrisma) => Task.from(taskPrisma));
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -43,6 +41,7 @@ const createTask = async (task: Task): Promise<Task> => {
         });
         return Task.from(taskPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -58,6 +57,7 @@ const getTaskById = async ({ id }: { id: number }): Promise<Task | null> => {
         }
         return null;
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -89,8 +89,20 @@ const updateTask = async (changedTask: Task): Promise<Task> => {
         });
         return Task.from(taskPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
 
-export default { getAllTasks, createTask, getTaskById, updateTask };
+const deleteTaskById = async (id: number) => {
+    try {
+        await database.task.delete({
+            where: { id },
+        });
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
+export default { getAllTasks, createTask, getTaskById, updateTask, deleteTaskById };

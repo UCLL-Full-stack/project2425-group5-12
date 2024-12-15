@@ -98,9 +98,6 @@ export class Task {
         if (!task.deadline) {
             throw new DomainError('Deadline is required');
         }
-        if (task.deadline.getTime() < Date.now()) {
-            throw new DomainError('Deadline cannot not be in past');
-        }
         if (!task.owner) {
             throw new DomainError('owner is required');
         }

@@ -44,9 +44,13 @@ const MemberForm: React.FC<Props> = ({ addedUsers, onClose }: Props) => {
       userId: String(userId),
     });
     const addResponse = await response.json();
-    setStatusMessage({ status: "success", message: addResponse.message });
-    setTimeout(() => onClose(), 2000);
-    mutate(`projects/${projectId}`);
+    if (response.ok) {
+      setStatusMessage({ status: "success", message: addResponse.message });
+      setTimeout(() => onClose(), 2000);
+      mutate(`projects/${projectId}`);
+    } else {
+      setStatusMessage({ status: "error", message: addResponse.message });
+    }
   };
 
   return (

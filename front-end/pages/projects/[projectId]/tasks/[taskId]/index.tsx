@@ -1,4 +1,4 @@
-import Header from "@/components/header";
+import Header from "@/components/ui/header";
 import TaskDetails from "@/components/tasks/TaskDetails";
 import TaskService from "@/services/TaskService";
 import { Task } from "@/types";
@@ -12,7 +12,7 @@ const TaskDetailsOverview: React.FC = () => {
   const { projectId, taskId } = router.query;
 
   const getTaskById = async () => {
-    const response = await TaskService.getTaskById(taskId as string);
+    const response = await TaskService.getTaskById({ id: taskId as string });
     const task = await response.json();
     if (response.ok) {
       return task;
@@ -29,8 +29,14 @@ const TaskDetailsOverview: React.FC = () => {
 
   useInterval(() => {
     mutate(`/tasks/${taskId}`, getTaskById);
-  }, 1000);
+  }, 5000);
 
+  useEffect(() => {
+    const loggedIn = sessionStorage.getItem("loggedIn");
+    if (loggedIn === "false") {
+      router.push("/login");
+    }
+  }, []);
   return (
     <div className="flex min-h-screen bg-gray-50">
       <div className="mr-60">

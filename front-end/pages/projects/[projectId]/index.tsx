@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Project } from "@/types";
 import ProjectService from "@/services/ProjectService";
 import ProjectDetails from "@/components/projects/ProjectDetails";
-import Header from "@/components/header";
+import Header from "@/components/ui/header";
 import useSWR, { mutate } from "swr";
 import useInterval from "use-interval";
 
@@ -11,8 +11,17 @@ const ProjectDetailsOverview: React.FC = () => {
   const router = useRouter();
   const { projectId } = router.query;
 
+  useEffect(() => {
+    const loggedIn = sessionStorage.getItem("loggedIn");
+    if (loggedIn === "false") {
+      router.push("/login");
+    }
+  }, []);
+
   const getProjectById = async () => {
-    const response = await ProjectService.getProjectById(projectId as string);
+    const response = await ProjectService.getProjectById({
+      id: projectId as string,
+    });
     const project = await response.json();
     if (response.ok) {
       return project;

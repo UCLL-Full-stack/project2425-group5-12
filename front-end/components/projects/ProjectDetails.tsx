@@ -1,6 +1,6 @@
 import ProjectService from "@/services/ProjectService";
 import TaskService from "@/services/TaskService";
-import { Project, Task } from "@/types";
+import { Project, StatusMessage, Task } from "@/types";
 import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import MemberForm from "./MemberForm";
@@ -16,6 +16,9 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
   const [projectHover, setProjectHover] = useState<boolean>(false);
   const [showMemberForm, setShowMemberForm] = useState<boolean>(false);
   const [showMemberButton, setShowMemberButton] = useState<boolean>(false);
+  const [userId, setUserId] = useState<number>();
+  const [userRole, setUserRole] = useState<string>();
+  const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
 
   const router = useRouter();
   const { projectId } = router.query;
@@ -38,6 +41,21 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
     }
   }, [taskToggleId]);
 
+  const handleTaskDelete = async (id: number) => {
+    setStatusMessage(null);
+    const response = await TaskService.deleteTaskById({ id: String(id) });
+    const result = await response.json();
+    if (response.ok) {
+      setStatusMessage({ status: "succes", message: result.message });
+      mutate(`projects/${projectId}`);
+      setTimeout(() => {
+        setStatusMessage(null);
+      }, 2000);
+    } else {
+      setStatusMessage({ status: "error", message: result.message });
+    }
+  };
+
   useEffect(() => {
     const userRole = sessionStorage.getItem("userRole");
     if (userRole != "USER") {
@@ -46,6 +64,13 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
     if (project.title === "TO DO") {
       setShowMemberButton(false);
     }
+  });
+
+  useEffect(() => {
+    const userRole = sessionStorage.getItem("userRole");
+    const userId = sessionStorage.getItem("userId");
+    setUserId(Number(userId));
+    setUserRole(userRole || "");
   });
 
   return (
@@ -123,6 +148,7 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
                 <th className="px-4 py-2 font-medium text-gray-600">
                   Assignee
                 </th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -142,47 +168,51 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
                     className="border-b hover:bg-gray-50 cursor-pointer"
                   >
                     <td>
-                      <button
-                        onClick={() => {
-                          if (task.id.toString() === taskToggleId) {
-                            handleTaskToggle();
-                          } else {
-                            setTaskToggleId(task.id.toString());
+                      {(userId === task.owner.id || userRole === "ADMIN") && (
+                        <button
+                          onClick={() => {
+                            if (task.id.toString() === taskToggleId) {
+                              handleTaskToggle();
+                            } else {
+                              setTaskToggleId(task.id.toString());
+                            }
+                          }}
+                          onMouseEnter={() =>
+                            setTaskHoverId(task.id.toString())
                           }
-                        }}
-                        onMouseEnter={() => setTaskHoverId(task.id.toString())}
-                        onMouseLeave={() => setTaskHoverId("")}
-                      >
-                        {task.done || task.id.toString() === taskHoverId ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            className="size-6"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            className="size-6"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                            />
-                          </svg>
-                        )}
-                      </button>
+                          onMouseLeave={() => setTaskHoverId("")}
+                        >
+                          {task.done || task.id.toString() === taskHoverId ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-6"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              className="size-6"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      )}
                     </td>
                     <td
                       className="px-4 py-2 text-gray-700 hover:underline"
@@ -198,6 +228,24 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
                     <td className="px-4 py-2 text-gray-700">
                       {task.owner.firstName + " " + task.owner.lastName}
                     </td>
+                    {(userId === task.owner.id || userRole === "ADMIN") && (
+                      <td>
+                        <button onClick={() => handleTaskDelete(task.id)}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="size-6 text-gray-400 hover:text-red-400"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
             </tbody>
@@ -261,6 +309,17 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
               )}
             </div>
           </>
+        )}
+        {statusMessage && (
+          <div
+            className={
+              statusMessage.status === "error"
+                ? "text-red-400"
+                : "text-emerald-600"
+            }
+          >
+            {statusMessage.message}
+          </div>
         )}
       </div>
     </div>

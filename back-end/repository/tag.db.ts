@@ -9,6 +9,7 @@ const getTagById = async ({ id }: { id: number }): Promise<Tag | null> => {
         }
         return null;
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
@@ -26,6 +27,7 @@ const createTag = async (tag: Tag): Promise<Tag> => {
         const tagPrisma = await database.tag.create({ data: { title: tag.getTitle() } });
         return Tag.from(tagPrisma);
     } catch (error) {
+        console.error(error);
         throw new Error('Database error. See server log for details.');
     }
 };
