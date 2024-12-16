@@ -29,6 +29,7 @@ const task1 = new Task({
     deadline: deadline1,
     owner: user1,
     tags: [],
+    projectId: 1,
 });
 const task2 = new Task({
     title: 'Finish studying',
@@ -36,6 +37,7 @@ const task2 = new Task({
     deadline: deadline2,
     owner: user2,
     tags: [],
+    projectId: 1,
 });
 
 const title = 'Full-Stack';

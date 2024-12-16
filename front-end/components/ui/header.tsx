@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import Language from "../Language/Language";
+import { useTranslation } from "next-i18next";
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string>("");
   const router = useRouter();
@@ -85,7 +88,7 @@ const Header: React.FC = () => {
           className="flex text-2xl items-center justify-center hover:scale-110 hover:text-emerald-300 transition-transform"
           href="/projects"
         >
-          My Projects:
+          {t("header.myProjects")}
         </Link>
       )}
       <div className="flex-1 md:mt-4 overflow-y-scroll scrollbar-hidden">
@@ -102,7 +105,7 @@ const Header: React.FC = () => {
               </li>
             ))}
           {error && <li className="text-red-400">{error.message}</li>}
-          {isLoading && <li className="text-red-400">Loading...</li>}
+          {isLoading && <li className="text-red-400">{t("loading")}</li>}
         </ul>
       </div>
       {!isLoggedIn && (
@@ -143,6 +146,7 @@ const Header: React.FC = () => {
           </svg>
         </button>
       )}
+      <Language></Language>
     </aside>
   );
 };

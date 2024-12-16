@@ -3,8 +3,10 @@ import { useRouter } from "next/router";
 import UserService from "@/services/UserService";
 import { StatusMessage } from "@/types";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 
 const LoginForm: React.FC = () => {
+  const { t } = useTranslation();
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -24,12 +26,12 @@ const LoginForm: React.FC = () => {
     setStatusMessage(null);
 
     if (userEmail.trim() === "") {
-      setEmailError("Email is required!");
+      setEmailError(t("login.form.emailRequired"));
       return false;
     }
 
     if (userPassword.trim() === "") {
-      setPasswordError("Password is required!");
+      setPasswordError(t("login.form.passwordRequired"));
       return false;
     }
     return true;
@@ -49,7 +51,7 @@ const LoginForm: React.FC = () => {
     if (response.ok) {
       setStatusMessage({
         status: "success",
-        message: "Logged in successfully!",
+        message: t("login.form.succesfullyLoggedIn"),
       });
       setUserId(loggedInUser.userId);
       setUserRole(loggedInUser.userRole);
@@ -77,14 +79,14 @@ const LoginForm: React.FC = () => {
         className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-700 text-center">
-          Login
+          {t("login.form.login")}
         </h2>
         <div>
           <label
             htmlFor="email"
             className="block text-sm font-medium text-gray-600"
           >
-            Email
+            {t("login.form.email")}
           </label>
           <input
             type="email"
@@ -102,7 +104,7 @@ const LoginForm: React.FC = () => {
             htmlFor="password"
             className="block text-sm font-medium text-gray-600"
           >
-            Password
+            {t("login.form.password")}
           </label>
           <div className="relative">
             <input
@@ -161,12 +163,12 @@ const LoginForm: React.FC = () => {
           {passwordError && <div className="text-red-400">{passwordError}</div>}
         </div>
         <div className="flex items-center space-x-2">
-          <p>New?</p>
+          <p>{t("login.form.new")}</p>
           <Link
             href="/signup"
             className="text-green-600 underline hover:text-green-800"
           >
-            Create your account
+            {t("login.form.createAccount")}
           </Link>
         </div>
 
@@ -174,7 +176,7 @@ const LoginForm: React.FC = () => {
           type="submit"
           className="w-full py-2 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
-          Login
+          {t("login.form.login")}
         </button>
         {statusMessage && (
           <div

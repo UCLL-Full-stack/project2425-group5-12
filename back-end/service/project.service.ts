@@ -52,7 +52,7 @@ const toggleProjectDoneById = async ({ id }: { id: number }) => {
     const project = await projectDb.getProjectById({ id });
     if (!project) throw new Error(`Project with id:${id} not found.`);
     project.switchDone();
-    return await projectDb.updateProject(project);
+    return await projectDb.updateProject({ projectToChange: project });
 };
 
 const addMemberByIdByProjectId = async ({
@@ -73,7 +73,7 @@ const addMemberByIdByProjectId = async ({
         if (!user) throw new Error(`User with id:${memberId} not found.`);
 
         project.addMember(user);
-        return projectDb.updateProject(project);
+        return projectDb.updateProject({ projectToChange: project });
     }
     if (userRole === 'PROJECT_MANAGER') {
         const project = await projectDb.getProjectById({ id: projectId });
@@ -86,7 +86,7 @@ const addMemberByIdByProjectId = async ({
         if (!user) throw new Error(`User with id:${memberId} not found.`);
 
         project.addMember(user);
-        return projectDb.updateProject(project);
+        return projectDb.updateProject({ projectToChange: project });
     }
     if (userRole === 'USER')
         throw new UnauthorizedError('invalid_token', { message: 'Not authorized.' });

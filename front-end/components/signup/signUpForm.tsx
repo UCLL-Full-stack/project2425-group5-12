@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import UserService from "@/services/UserService";
 import { StatusMessage } from "@/types";
+import { useTranslation } from "next-i18next";
 
 const SignUpForm: React.FC = () => {
+  const { t } = useTranslation();
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -29,22 +31,22 @@ const SignUpForm: React.FC = () => {
     setStatusMessage(null);
 
     if (userEmail.trim() === "") {
-      setEmailError("Email is required!");
+      setEmailError(t("signup.form.emailRequired"));
       return false;
     }
 
     if (userPassword.trim() === "") {
-      setPasswordError("Password is required!");
+      setPasswordError(t("signup.form.passwordRequired"));
       return false;
     }
 
     if (userFirstName.trim() === "") {
-      setFirstNameError("First name is required!");
+      setFirstNameError(t("signup.form.firstnameRequired"));
       return false;
     }
 
     if (userLastName.trim() === "") {
-      setLastNameError("Last name is required!");
+      setLastNameError(t("signup.form.lastnameRequired"));
       return false;
     }
     return true;
@@ -66,7 +68,7 @@ const SignUpForm: React.FC = () => {
     if (response.ok) {
       setStatusMessage({
         status: "success",
-        message: "Created account succesfully!",
+        message: t("signup.form.succesfullyCreated"),
       });
       setUserId(createdUser.userId);
       setUserRole(createdUser.userRole);
@@ -92,14 +94,14 @@ const SignUpForm: React.FC = () => {
         className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-700 text-center">
-          Sign Up
+          {t("signup.form.signup")}
         </h2>
         <div>
           <label
             htmlFor="firstName"
             className="block text-sm font-medium text-gray-600"
           >
-            First Name
+            {t("signup.form.firstName")}
           </label>
           <input
             type="text"
@@ -120,7 +122,7 @@ const SignUpForm: React.FC = () => {
             htmlFor="lastName"
             className="block text-sm font-medium text-gray-600"
           >
-            Last Name
+            {t("signup.form.lastName")}
           </label>
           <input
             type="text"
@@ -139,7 +141,7 @@ const SignUpForm: React.FC = () => {
             htmlFor="email_field"
             className="block text-sm font-medium text-gray-600"
           >
-            Email
+            {t("signup.form.email")}
           </label>
           <input
             type="email"
@@ -157,7 +159,7 @@ const SignUpForm: React.FC = () => {
             htmlFor="password"
             className="block text-sm font-medium text-gray-600"
           >
-            Password
+            {t("signup.form.password")}
           </label>
           <div className="relative">
             <input
@@ -219,7 +221,7 @@ const SignUpForm: React.FC = () => {
           type="submit"
           className="w-full py-2 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
-          Submit
+          {t("signup.form.signup")}
         </button>
         {statusMessage && (
           <div

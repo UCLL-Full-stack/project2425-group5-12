@@ -1,4 +1,5 @@
 import { Project } from "@/types";
+import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -7,6 +8,7 @@ type Props = {
 };
 
 const ProjectOverviewTable: React.FC<Props> = ({ projects }: Props) => {
+  const { t } = useTranslation();
   const router = useRouter();
   return (
     <div className="overflow-x-auto">
@@ -14,9 +16,15 @@ const ProjectOverviewTable: React.FC<Props> = ({ projects }: Props) => {
         <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
           <thead>
             <tr className="bg-emerald-600 text-white">
-              <th className="px-4 py-3 text-left font-semibold">Title</th>
-              <th className="px-4 py-3 text-left font-semibold">Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Owner</th>
+              <th className="px-4 py-3 text-left font-semibold">
+                {t("projects.overview.title")}
+              </th>
+              <th className="px-4 py-3 text-left font-semibold">
+                {t("projects.overview.status")}
+              </th>
+              <th className="px-4 py-3 text-left font-semibold">
+                {t("projects.overview.owner")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -32,7 +40,9 @@ const ProjectOverviewTable: React.FC<Props> = ({ projects }: Props) => {
                   {project.title}
                 </td>
                 <td className="px-4 py-2 border-b border-gray-200">
-                  {project.done ? "Completed" : "In Progress"}
+                  {project.done
+                    ? t("projects.overview.completed")
+                    : t("projects.overview.progress")}
                 </td>
                 <td className="px-4 py-2 border-b border-gray-200">
                   {project.owner.firstName} {project.owner.lastName}

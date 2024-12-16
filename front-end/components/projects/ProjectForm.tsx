@@ -1,9 +1,11 @@
 import ProjectService from "@/services/ProjectService";
 import { StatusMessage } from "@/types";
+import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 const ProjectForm: React.FC = () => {
+  const { t } = useTranslation();
   const [projectTitle, setProjectTitle] = useState<string>("");
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [titleError, setTitleError] = useState<string>("");
@@ -17,12 +19,12 @@ const ProjectForm: React.FC = () => {
     setStatusMessage(null);
 
     if (projectTitle.trim() === "") {
-      setTitleError("Title is required!");
+      setTitleError(t("projects.form.titleRequired"));
       return false;
     }
 
     if (projectDescription.trim() === "") {
-      setDescriptionError("Description is required!");
+      setDescriptionError(t("projects.form.descriptionRequired"));
       return false;
     }
     return true;
@@ -56,7 +58,7 @@ const ProjectForm: React.FC = () => {
         className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8 space-y-6"
       >
         <h2 className="text-2xl font-semibold text-gray-700 text-center">
-          Create New Project
+          {t("projects.form.createProject")}
         </h2>
 
         <div>
@@ -64,7 +66,7 @@ const ProjectForm: React.FC = () => {
             htmlFor="title"
             className="block text-sm font-medium text-gray-600"
           >
-            Title:
+            {t("projects.form.title")}
           </label>
           <input
             type="text"
@@ -82,7 +84,7 @@ const ProjectForm: React.FC = () => {
             htmlFor="description"
             className="block text-sm font-medium text-gray-600"
           >
-            Description:
+            {t("projects.form.description")}
           </label>
           <textarea
             id="description"
@@ -101,7 +103,7 @@ const ProjectForm: React.FC = () => {
           type="submit"
           className="w-full py-2 px-4 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
-          Submit
+          {t("projects.form.create")}
         </button>
         {statusMessage && (
           <div

@@ -1,16 +1,19 @@
 import Head from "next/head";
 import Header from "@/components/ui/header";
-import React, { useEffect } from "react";
-import { useRouter } from "next/router";
+import React from "react";
+import { GetServerSideProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <>
       <Head>
         <title>PlanIt</title>
         <meta name="homepage" content="homepage" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/images/favicon.ico" />
       </Head>
       <Header></Header>
       <div className="flex min-h-screen bg-gray-50">
@@ -21,11 +24,15 @@ const Home: React.FC = () => {
               <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                 <thead>
                   <tr className="bg-emerald-600 text-white">
-                    <th className="px-4 py-3 text-left font-semibold">Email</th>
                     <th className="px-4 py-3 text-left font-semibold">
-                      Password
+                      {t("home.email")}
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold">Role</th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      {t("home.password")}
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold">
+                      {t("home.role")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -68,6 +75,14 @@ const Home: React.FC = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale ?? "en", ["common"])),
+    },
+  };
 };
 
 export default Home;

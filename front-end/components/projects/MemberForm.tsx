@@ -1,6 +1,7 @@
 import ProjectService from "@/services/ProjectService";
 import UserService from "@/services/UserService";
 import { StatusMessage, User } from "@/types";
+import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const MemberForm: React.FC<Props> = ({ addedUsers, onClose }: Props) => {
+  const { t } = useTranslation();
   const [userSearchInput, setUserSearchInput] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
 
@@ -58,7 +60,9 @@ const MemberForm: React.FC<Props> = ({ addedUsers, onClose }: Props) => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white w-96 p-6 rounded-lg shadow-lg space-y-4 relative">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Add Members</h3>
+            <h3 className="text-lg font-semibold">
+              {t("projects.memberForm.addMember")}
+            </h3>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -84,7 +88,7 @@ const MemberForm: React.FC<Props> = ({ addedUsers, onClose }: Props) => {
               type="text"
               value={userSearchInput}
               onChange={(e) => setUserSearchInput(e.target.value)}
-              placeholder="Search and add a user"
+              placeholder={t("projects.memberForm.search")}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -126,7 +130,7 @@ const MemberForm: React.FC<Props> = ({ addedUsers, onClose }: Props) => {
               {errorMessage && (
                 <p className="text-red-400">{errorMessage.message}</p>
               )}
-              {isLoading && <p className="text-red-400">Loading...</p>}
+              {isLoading && <p className="text-red-400">{t("loading")}</p>}
             </div>
           )}
         </div>

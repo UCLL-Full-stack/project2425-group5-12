@@ -5,12 +5,14 @@ import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import MemberForm from "./MemberForm";
 import { mutate } from "swr";
+import { useTranslation } from "next-i18next";
 
 type Props = {
   project: Project;
 };
 
 const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
+  const { t } = useTranslation();
   const [taskToggleId, setTaskToggleId] = useState<string>("");
   const [taskHoverId, setTaskHoverId] = useState<string>("");
   const [projectHover, setProjectHover] = useState<boolean>(false);
@@ -122,12 +124,14 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
           <tbody>
             <tr className="border-b">
               <td className="px-4 py-2 font-medium text-gray-600">
-                Description:
+                {t("projects.details.description")}
               </td>
               <td className="px-4 py-2 text-gray-700">{project.description}</td>
             </tr>
             <tr className="border-b">
-              <td className="px-4 py-2 font-medium text-gray-600">Owner:</td>
+              <td className="px-4 py-2 font-medium text-gray-600">
+                {t("projects.details.owner")}
+              </td>
               <td className="px-4 py-2 text-gray-700">
                 {project.owner.firstName + " " + project.owner.lastName}
               </td>
@@ -135,18 +139,22 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
           </tbody>
         </table>
 
-        <h3 className="text-xl font-semibold text-gray-700 mt-6">Tasks</h3>
+        <h3 className="text-xl font-semibold text-gray-700 mt-6">
+          {t("projects.details.tasks")}
+        </h3>
         {project.tasks.length > 0 ? (
           <table className="min-w-full table-auto text-left border-collapse mt-4">
             <thead>
               <tr className="border-b bg-gray-100">
                 <th className=""></th>
-                <th className="px-4 py-2 font-medium text-gray-600">Title</th>
                 <th className="px-4 py-2 font-medium text-gray-600">
-                  Deadline
+                  {t("projects.details.title")}
                 </th>
                 <th className="px-4 py-2 font-medium text-gray-600">
-                  Assignee
+                  {t("projects.details.deadline")}
+                </th>
+                <th className="px-4 py-2 font-medium text-gray-600">
+                  {t("projects.details.assignee")}
                 </th>
                 <th></th>
               </tr>
@@ -251,31 +259,33 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
             </tbody>
           </table>
         ) : (
-          <p className="text-gray-600 mt-4">No tasks available.</p>
+          <p className="text-gray-600 mt-4">{t("projects.details.noTasks")}</p>
         )}
         <div className="mt-6">
           <button
             onClick={() => router.push(`/projects/${projectId}/addTask`)}
             className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            Add Task
+            {t("projects.details.addTask")}
           </button>
         </div>
         {project.members.length > 0 && (
           <>
             <h3 className="text-xl font-semibold text-gray-700 mt-6">
-              Members
+              {t("projects.details.members")}
             </h3>
             <table className="min-w-full table-auto text-left border-collapse mt-4">
               <thead>
                 <tr className="border-b bg-gray-100">
                   <th className="px-4 py-2 font-medium text-gray-600">
-                    First name
+                    {t("projects.details.firstName")}
                   </th>
                   <th className="px-4 py-2 font-medium text-gray-600">
-                    Last name
+                    {t("projects.details.lastName")}
                   </th>
-                  <th className="px-4 py-2 font-medium text-gray-600">Email</th>
+                  <th className="px-4 py-2 font-medium text-gray-600">
+                    {t("projects.details.email")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -298,7 +308,7 @@ const ProjectDetails: React.FC<Props> = ({ project }: Props) => {
                   onClick={() => setShowMemberForm(true)}
                   className="px-6 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  Add Member
+                  {t("projects.details.addMember")}
                 </button>
               )}
               {showMemberForm && (

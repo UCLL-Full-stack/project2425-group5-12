@@ -7,12 +7,14 @@ import TagService from "@/services/TagService";
 import TagForm from "../tags/TagForm";
 import useSWR, { mutate } from "swr";
 import useInterval from "use-interval";
+import { useTranslation } from "next-i18next";
 
 type Props = {
   task?: Task;
 };
 
 const TaskForm: React.FC<Props> = ({ task }: Props) => {
+  const { t } = useTranslation();
   const [taskTitle, setTaskTitle] = useState<string>(task?.title || "");
   const [taskDescription, setTaskDescription] = useState<string>(
     task?.description || ""
@@ -68,7 +70,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
         tag.title === title;
       })
     ) {
-      setTagError("Tag already exists");
+      setTagError(t("tasks.form.tagAlreadyExists"));
     }
     const response = await TagService.createTag({ title });
     const tagResponse = await response.json();
@@ -97,17 +99,17 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
     setStatusMessage(null);
 
     if (taskTitle.trim() === "") {
-      setTitleError("Title is required!");
+      setTitleError(t("tasks.form.titleRequired"));
       return false;
     }
 
     if (taskDescription.trim() === "") {
-      setDescriptionError("Description is required!");
+      setDescriptionError(t("tasks.form.descriptionRequired"));
       return false;
     }
 
     if (new Date(taskDeadline).getTime() < Date.now()) {
-      setDeadlineError("Deadline cannot be in past!");
+      setDeadlineError(t("tasks.form.deadlineRequired"));
       return false;
     }
     return true;
@@ -159,7 +161,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       if (response.ok) {
         setStatusMessage({
           status: "succes",
-          message: "Task succesfully created!",
+          message: t("tasks.form.succesfullyCreated"),
         });
         setTimeout(() => router.push(`/projects/${projectId}`), 2000);
       } else {
@@ -176,10 +178,12 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       className="max-w-lg mx-auto p-8 bg-white shadow-md rounded-lg"
     >
       <h2 className="text-2xl font-semibold text-gray-700 text-center">
-        {task ? "Update Task" : "Create New Task"}
+        {task ? t("tasks.form.update") : t("tasks.form.create")}
       </h2>
       <div className="mb-6">
-        <label className="block text-gray-700 font-medium mb-2">Title</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          {t("tasks.form.title")}
+        </label>
         <input
           type="text"
           name="title"
@@ -193,7 +197,7 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
 
       <div className="mb-6">
         <label className="block text-gray-700 font-medium mb-2">
-          Description
+          {t("tasks.form.description")}
         </label>
         <textarea
           name="description"
@@ -209,7 +213,9 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       </div>
 
       <div className="mb-6">
-        <label className="block text-gray-700 font-medium mb-2">Deadline</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          {t("tasks.form.deadline")}
+        </label>
         <input
           name="deadline"
           type="datetime-local"
@@ -230,9 +236,11 @@ const TaskForm: React.FC<Props> = ({ task }: Props) => {
       {tagErrorMessage && (
         <div className="text-red-400">{tagErrorMessage.message}</div>
       )}
-      {isLoading && <div className="text-red-400">Loading...</div>}
+      {isLoading && <div className="text-red-400">{t("loading")}</div>}
       <div className="mb-6">
-        <p className="text-gray-700 font-medium mb-2">Added Tags</p>
+        <p className="text-gray-700 font-medium mb-2">
+          {t("tasks.form.addedTags")}
+        </p>
         <ul className="flex flex-wrap gap-2">
           {taskTags.map((tag) => (
             <li

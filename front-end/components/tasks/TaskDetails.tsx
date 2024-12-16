@@ -1,5 +1,6 @@
 import TaskService from "@/services/TaskService";
 import { StatusMessage, Task } from "@/types";
+import { useTranslation } from "next-i18next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -10,6 +11,7 @@ type Props = {
 };
 
 const TaskDetails: React.FC<Props> = ({ task }: Props) => {
+  const { t } = useTranslation();
   const [taskCheckHover, setTaskCheckHover] = useState<boolean>(false);
   const [userId, setUserId] = useState<number>();
   const [userRole, setUserRole] = useState<string>();
@@ -95,25 +97,29 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
             <tbody>
               <tr className="border-b">
                 <td className="py-3 font-semibold text-gray-600">
-                  Description:
+                  {t("tasks.details.description")}
                 </td>
                 <td className="py-3">{task.description}</td>
               </tr>
               <tr className="border-b">
-                <td className="py-3 font-semibold text-gray-600">Deadline:</td>
+                <td className="py-3 font-semibold text-gray-600">
+                  {t("tasks.details.deadline")}
+                </td>
                 <td className="py-3">
                   {new Date(task.deadline).toLocaleString()}
                 </td>
               </tr>
               <tr className="border-b">
-                <td className="py-3 font-semibold text-gray-600">Owner:</td>
+                <td className="py-3 font-semibold text-gray-600">
+                  {t("tasks.details.owner")}
+                </td>
                 <td className="py-3">
                   {task.owner.firstName} {task.owner.lastName}
                 </td>
               </tr>
               <tr>
                 <td className="py-3 font-semibold text-gray-600 align-top">
-                  Tags:
+                  {t("tasks.details.tags")}
                 </td>
                 <td className="py-3">
                   <div className="flex flex-wrap gap-2">

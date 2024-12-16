@@ -92,7 +92,11 @@ const createProject = async ({ project }: { project: Project }): Promise<Project
     }
 };
 
-const updateProject = async (projectToChange: Project): Promise<Project> => {
+const updateProject = async ({
+    projectToChange,
+}: {
+    projectToChange: Project;
+}): Promise<Project> => {
     try {
         const projectPrisma = await database.project.update({
             where: { id: projectToChange.getId() },

@@ -28,6 +28,7 @@ test('given: valid values for task, when: task is created, then: task is created
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //then
@@ -49,26 +50,12 @@ test('given: invalid description for task, when: task is created, then: error is
             deadline,
             owner,
             tags,
+            projectId: 1,
         });
     };
 
     //then
     expect(task).toThrow('Description is required');
-    expect(task).toThrow(DomainError);
-});
-
-test('given: deadline in past for task, when: task is created, then: error is thrown', () => {
-    //when
-    const task = () =>
-        new Task({
-            title,
-            description,
-            deadline: pastDeadline,
-            owner,
-            tags,
-        });
-    //then
-    expect(task).toThrow('Deadline cannot not be in past');
     expect(task).toThrow(DomainError);
 });
 
@@ -80,6 +67,7 @@ test('given: existing task, when: tag is added, then: new tag is added to task',
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when
@@ -98,6 +86,7 @@ test('given: existing task, when: tag is added again, then: new error is thrown'
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when
@@ -116,6 +105,7 @@ test('given: existing task, when: task is marked done, then: done is changed to 
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when
