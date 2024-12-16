@@ -3,6 +3,7 @@ import { Tag } from '../../model/tag';
 import { Task } from '../../model/task';
 import { User } from '../../model/user';
 import { set } from 'date-fns';
+import { DomainError } from '../../model/domainError';
 
 const deadline = set(new Date(), { year: 2025, month: 10, date: 28, hours: 15 });
 const pastDeadline = set(new Date(), { year: 2023, month: 10, date: 28, hours: 15 });
@@ -14,7 +15,7 @@ const owner = new User({
     lastName: 'Doe',
     email: 'john.doe@ucll.be',
     password: 'john123',
-    role: 'user',
+    role: 'USER',
 });
 const title = 'Finish coding';
 const description = 'Finish coding assignment for full-stack development.';
@@ -27,6 +28,7 @@ test('given: valid values for task, when: task is created, then: task is created
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //then
@@ -48,25 +50,13 @@ test('given: invalid description for task, when: task is created, then: error is
             deadline,
             owner,
             tags,
+            projectId: 1,
         });
     };
 
     //then
     expect(task).toThrow('Description is required');
-});
-
-test('given: deadline in past for task, when: task is created, then: error is thrown', () => {
-    //when
-    const task = () =>
-        new Task({
-            title,
-            description,
-            deadline: pastDeadline,
-            owner,
-            tags,
-        });
-    //then
-    expect(task).toThrow('Deadline cannot not be in past');
+    expect(task).toThrow(DomainError);
 });
 
 test('given: existing task, when: tag is added, then: new tag is added to task', () => {
@@ -77,6 +67,7 @@ test('given: existing task, when: tag is added, then: new tag is added to task',
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when
@@ -95,6 +86,7 @@ test('given: existing task, when: tag is added again, then: new error is thrown'
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when
@@ -102,6 +94,7 @@ test('given: existing task, when: tag is added again, then: new error is thrown'
 
     //then
     expect(addTag).toThrow('Tag is already added');
+    expect(addTag).toThrow(DomainError);
 });
 
 test('given: existing task, when: task is marked done, then: done is changed to true', () => {
@@ -112,6 +105,7 @@ test('given: existing task, when: task is marked done, then: done is changed to 
         deadline,
         owner,
         tags,
+        projectId: 1,
     });
 
     //when

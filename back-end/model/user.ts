@@ -1,12 +1,13 @@
 import { Role } from '../types';
 import { User as userPrisma } from '@prisma/client';
+import { DomainError } from './domainError';
 
 export class User {
     private id?: number;
     private firstName: string;
     private lastName: string;
     private email: string;
-    private password: string;
+    private password?: string;
     private role: Role;
 
     constructor(user: {
@@ -14,7 +15,7 @@ export class User {
         firstName: string;
         lastName: string;
         email: string;
-        password: string;
+        password?: string;
         role: Role;
     }) {
         this.validate(user);
@@ -43,7 +44,7 @@ export class User {
         return this.email;
     }
 
-    getPassword(): string {
+    getPassword(): string | undefined {
         return this.password;
     }
 
@@ -51,27 +52,18 @@ export class User {
         return this.role;
     }
 
-    validate(user: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        password: string;
-        role: Role;
-    }) {
+    validate(user: { firstName: string; lastName: string; email: string; role: Role }) {
         if (!user.firstName?.trim()) {
-            throw new Error('First name is required');
+            throw new DomainError('First name is required');
         }
         if (!user.lastName?.trim()) {
-            throw new Error('Last name is required');
+            throw new DomainError('Last name is required');
         }
         if (!user.email?.trim()) {
-            throw new Error('Email is required');
-        }
-        if (!user.password?.trim()) {
-            throw new Error('Password is required');
+            throw new DomainError('Email is required');
         }
         if (!user.role) {
-            throw new Error('Role is required');
+            throw new DomainError('Role is required');
         }
     }
 
@@ -88,5 +80,9 @@ export class User {
 
     static from({ id, firstName, lastName, email, password, role }: userPrisma) {
         return new User({ id, firstName, lastName, email, password, role });
+    }
+
+    static fromSafe({ id, firstName, lastName, email, role }: userPrisma): User {
+        return new User({ id, firstName, lastName, email, role });
     }
 }

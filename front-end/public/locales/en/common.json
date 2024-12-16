@@ -1,0 +1,108 @@
+{
+  "home": {
+    "email": "Email",
+    "password": "Password",
+    "role": "Role"
+  },
+  "login": {
+    "form": {
+      "emailRequired": "Email is required!",
+      "passwordRequired": "Password is required!",
+      "succesfullyLoggedIn": "Logged in succesfully!",
+      "login": "Login",
+      "email": "Email",
+      "password": "Password",
+      "new": "New?",
+      "createAccount": "Create your account"
+    }
+  },
+  "signup": {
+    "form": {
+      "emailRequired": "Email is required!",
+      "passwordRequired": "Password is required!",
+      "firstnameRequired": "First name is required!",
+      "lastnameRequired": "Last name is required!",
+      "succesfullyCreated": "Created account succesfully!",
+      "signup": "Sign Up",
+      "firstName": "Fist Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password"
+    }
+  },
+  "projects": {
+    "page": {
+      "overview": "Projects Overview",
+      "newProject": "New Project",
+      "notFound": "No projects Found!"
+    },
+    "memberForm": {
+      "addMember": "Add Members",
+      "search": "Search and add a user"
+    },
+    "details": {
+      "description": "Description:",
+      "owner": "Owner:",
+      "tasks": "Tasks",
+      "title": "Title",
+      "deadline": "Deadline",
+      "assignee": "Assignee",
+      "noTasks": "No tasks available!",
+      "addTask": "Add Task",
+      "members": "Members",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "addMember": "Add Member"
+    },
+    "form": {
+      "titleRequired": "Title is required!",
+      "descriptionRequired": "Description is required!",
+      "createProject": "Create New Project",
+      "title": "Title:",
+      "description": "Description",
+      "create": "Create"
+    },
+    "overview": {
+      "title": "Title",
+      "status": "Status",
+      "owner": "Owner",
+      "completed": "Completed",
+      "progress": "In Progress"
+    }
+  },
+  "tasks": {
+    "add": { "backToProject": "Back To Project" },
+    "edit": { "backToTask": "Back To Task" },
+    "form": {
+      "tagAlreadyExists": "Tag already exists.",
+      "titleRequired": "Title is required!",
+      "descriptionRequired": "Description is required!",
+      "deadlineRequired": "Deadline cannot be in past!",
+      "succesfullyCreated": "Task succesfully created!",
+      "title": "Title",
+      "description": "Description",
+      "deadline": "Deadline",
+      "addedTags": "Added Tags",
+      "update": "Update Task",
+      "create": "Create New Task"
+    },
+    "details": {
+      "description": "Description:",
+      "deadline": "Deadline:",
+      "owner": "Owner:",
+      "tags": "Tags:"
+    }
+  },
+  "loading": "Loading...",
+  "back": "Back",
+  "header": { "myProjects": "My Projects:" },
+  "tags": {
+    "form": {
+      "tags": "Tags:",
+      "addTag": "Add Tag",
+      "options": "Tag Options",
+      "search": "Search or add a tag"
+    }
+  }
+}

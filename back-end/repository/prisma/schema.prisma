@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   ADMIN
   USER
+  PROJECT_MANAGER
 }
 
 model User {
@@ -26,7 +27,7 @@ model User {
 
 model Tag {
   id    Int    @id @default(autoincrement())
-  title String
+  title String @unique
   tasks Task[] 
 }
 
@@ -37,18 +38,19 @@ model Task {
   done        Boolean
   deadline    DateTime
   ownerId     Int
-  owner       User       @relation("TaskOwner", fields: [ownerId], references: [id]) // Task's 1-to-many relationship with User
+  owner       User       @relation("TaskOwner", fields: [ownerId], references: [id]) 
   tags        Tag[]   
-  projects Project[]  
+  projectId   Int      
+  project     Project  @relation("ProjectTasks", fields: [projectId], references: [id])
 }
 
 model Project {
   id          Int        @id @default(autoincrement())
-  title       String
+  title       String     
   description String
   done        Boolean
   ownerId     Int
   owner       User       @relation("ProjectOwner", fields: [ownerId], references: [id])
-  tasks       Task[]
+  tasks       Task[]     @relation("ProjectTasks")
   members     User[]     @relation("ProjectMember")
 }

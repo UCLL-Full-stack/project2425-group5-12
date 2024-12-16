@@ -3,7 +3,6 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   role: string;
 };
 
@@ -15,6 +14,7 @@ export type Task = {
   deadline: Date;
   owner: User;
   tags: Tag[];
+  projectId: number;
 };
 
 export type Project = {
@@ -31,3 +31,8 @@ export type Tag = {
   id: number;
   title: string;
 };
+
+export type StatusMessage = {
+  status: string;
+  message: string;
+} | null;

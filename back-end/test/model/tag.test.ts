@@ -1,3 +1,4 @@
+import { DomainError } from '../../model/domainError';
 import { Tag } from '../../model/tag';
 
 test('given: valid values for tag, when: tag is created, then: tag is created with those values', () => {
@@ -14,4 +15,5 @@ test('given: invalid title for tag, when: tag is created, then: error is thrown'
 
     //then
     expect(tag).toThrow('Title is required');
+    expect(tag).toThrow(DomainError);
 });

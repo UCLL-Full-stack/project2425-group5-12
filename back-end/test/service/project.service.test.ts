@@ -16,10 +16,16 @@ const userInput: UserInput = {
     lastName: 'Doe',
     email: 'jack.doe@ucll.be',
     password: 'jack123',
-    role: 'user',
+    role: 'USER',
 };
 
-const user = new User({ ...userInput });
+const user = new User({
+    firstName: userInput.firstName || '',
+    lastName: userInput.lastName || '',
+    email: userInput.email,
+    password: userInput.password,
+    role: userInput.role || 'USER',
+});
 
 const user2 = new User({
     id: 2,
@@ -27,7 +33,7 @@ const user2 = new User({
     lastName: 'Doe',
     email: 'lisa.doe@ucll.be',
     password: 'lisa123',
-    role: 'user',
+    role: 'USER',
 });
 
 const task = new Task({
@@ -37,6 +43,7 @@ const task = new Task({
     owner: user,
     deadline,
     tags: [],
+    projectId: 1,
 });
 
 const task2 = new Task({
@@ -46,6 +53,7 @@ const task2 = new Task({
     owner: user,
     deadline,
     tags: [],
+    projectId: 1,
 });
 
 const project = new Project({
@@ -58,18 +66,18 @@ const project = new Project({
 
 const projects: Project[] = [project];
 
-let mockProjectDbGetAllProjects: jest.SpyInstance<Project[]>;
-let mockProjectDbGetProjectById: jest.SpyInstance<Project | null, [{ id: number }]>;
-let mockProjectDbCreateProject: jest.SpyInstance<Project, [Project]>;
-let mockProjectDbChangeProject: jest.SpyInstance<Project, [Project]>;
-let mockTaskDbGetTaskById: jest.SpyInstance<Task | null, [{ id: number }]>;
-let mockUserDbGetUserById: jest.SpyInstance<User | null, [{ id: number }]>;
+let mockProjectDbGetAllProjects: jest.SpyInstance<Promise<Project[]>, []>;
+let mockProjectDbGetProjectById: jest.SpyInstance<Promise<Project | null>, [{ id: number }]>;
+let mockProjectDbCreateProject: jest.SpyInstance<Promise<Project>, [{ project: Project }]>;
+let mockProjectDbChangeProject: jest.SpyInstance<Promise<Project>, [{ projectToChange: Project }]>;
+let mockTaskDbGetTaskById: jest.SpyInstance<Promise<Task | null>, [{ id: number }]>;
+let mockUserDbGetUserById: jest.SpyInstance<Promise<User | null>, [{ id: number }]>;
 
 beforeEach(() => {
     mockProjectDbGetAllProjects = jest.spyOn(projectDb, 'getAllProjects');
     mockProjectDbGetProjectById = jest.spyOn(projectDb, 'getProjectById');
     mockProjectDbCreateProject = jest.spyOn(projectDb, 'createProject');
-    mockProjectDbChangeProject = jest.spyOn(projectDb, 'changeProject');
+    mockProjectDbChangeProject = jest.spyOn(projectDb, 'updateProject');
     mockTaskDbGetTaskById = jest.spyOn(taskDb, 'getTaskById');
     mockUserDbGetUserById = jest.spyOn(userDb, 'getUserById');
 });
@@ -120,20 +128,24 @@ test('given: valid values for project, when: project is created, then: project i
     );
 });
 
-test('given: invalid values for project, when: task is created, then: error is thrown', () => {
+test('given: invalid values for project, when: project is created, then: error is thrown', async () => {
     //given
-    mockUserDbGetUserById.mockReturnValue(null);
+    mockUserDbGetUserById.mockResolvedValue(null);
+    console.log(await mockUserDbGetUserById.({ id: 1 }));
 
     //when
     const project = () =>
-        projectService.createProject({
-            title: 'Full-Stack',
-            description: 'course',
-            owner: userInput,
-        });
+        projectService.createProject(
+            {
+                title: 'Full-Stack',
+                description: 'course',
+                owner: userInput,
+            },
+            'PROJECT_OWNER'
+        );
 
     //expect
-    expect(project).toThrow('Owner with id:1 not found.');
+    expect(project).rejects.toThrow('Owner with id:1 not found.');
 });
 
 test('given: existing projects, when: getting project by id, then: project with given id is returned', () => {
@@ -160,7 +172,7 @@ test('given: existing projects, when: getting project by id, then: project with 
 
 test('given: invalid id for project, when: getting project by id, then: error is thrown', () => {
     //given
-    mockProjectDbGetProjectById.mockReturnValue(null);
+    mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
     const project = () => projectService.getProjectById({ id: 1 });

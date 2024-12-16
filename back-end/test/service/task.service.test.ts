@@ -16,7 +16,7 @@ const userInput: UserInput = {
     lastName: 'Doe',
     email: 'jack.doe@ucll.be',
     password: 'jack123',
-    role: 'user',
+    role: 'USER',
 };
 
 const user = new User({ ...userInput });

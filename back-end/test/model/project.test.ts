@@ -4,20 +4,21 @@ import { User } from '../../model/user';
 import { Tag } from '../../model/tag';
 import { Project } from '../../model/project';
 import exp from 'constants';
+import { DomainError } from '../../model/domainError';
 
 const user1 = new User({
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@ucll.be',
     password: 'john123',
-    role: 'user',
+    role: 'USER',
 });
 const user2 = new User({
     firstName: 'Jane',
     lastName: 'Toe',
     email: 'jane.toe@ucll.be',
     password: 'jane123',
-    role: 'user',
+    role: 'USER',
 });
 const deadline1 = set(new Date(), { year: 2025, month: 10, date: 28, hours: 15 });
 const deadline2 = set(new Date(), { year: 2025, month: 11, date: 28, hours: 15 });
@@ -28,6 +29,7 @@ const task1 = new Task({
     deadline: deadline1,
     owner: user1,
     tags: [],
+    projectId: 1,
 });
 const task2 = new Task({
     title: 'Finish studying',
@@ -35,6 +37,7 @@ const task2 = new Task({
     deadline: deadline2,
     owner: user2,
     tags: [],
+    projectId: 1,
 });
 
 const title = 'Full-Stack';
@@ -58,6 +61,7 @@ test('given: invalid title for project, when: project is created, then: error is
 
     //then
     expect(project).toThrow('Title is required');
+    expect(project).toThrow(DomainError);
 });
 
 test('given: existing project, when: new member is added, then: new member is added to project', () => {
@@ -81,6 +85,7 @@ test('given: existing project, when: new member is added again, then: error is t
 
     //then
     expect(addMember).toThrow('User already member of project');
+    expect(addMember).toThrow(DomainError);
 });
 
 test('given: existing project, when: new task is added, then: new task is added to project', () => {
@@ -104,6 +109,7 @@ test('given: existing project, when: new task is added again, then: error is thr
 
     //then
     expect(addTask).toThrow('Task already in project');
+    expect(addTask).toThrow(DomainError);
 });
 
 test('given: existing project, when: new task is added but task owner not in project, then: error is thrown', () => {
@@ -115,6 +121,7 @@ test('given: existing project, when: new task is added but task owner not in pro
 
     //then
     expect(addTask).toThrow('Task owner not a member of project');
+    expect(addTask).toThrow(DomainError);
 });
 
 test('given: existing project, when: project is marked done, then: done is changed to true', () => {

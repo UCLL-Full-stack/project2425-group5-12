@@ -1,19 +1,35 @@
 import { Tag } from '../model/tag';
-import { TagInput } from '../types';
+import database from './database';
 
-let currentId = 1;
-const tags: Tag[] = [];
-
-const getTagById = ({ id }: { id: number }): Tag | null => {
-    const tag = tags.find((tag) => tag.getId() === id);
-    return tag || null;
+const getTagById = async ({ id }: { id: number }): Promise<Tag | null> => {
+    try {
+        const tagPrisma = await database.tag.findUnique({ where: { id } });
+        if (tagPrisma) {
+            return Tag.from(tagPrisma);
+        }
+        return null;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
 };
 
-const getAllTags = () => tags;
-
-const createTag = (tag: Tag): Tag => {
-    tag.setId(currentId++);
-    tags.push(tag);
-    return tag;
+const getAllTags = async (): Promise<Tag[]> => {
+    try {
+        const tagsPrisma = await database.tag.findMany();
+        return tagsPrisma.map((tagPrisma) => Tag.from(tagPrisma));
+    } catch (error) {
+        throw new Error('Database error. See server log for details.');
+    }
 };
+const createTag = async (tag: Tag): Promise<Tag> => {
+    try {
+        const tagPrisma = await database.tag.create({ data: { title: tag.getTitle() } });
+        return Tag.from(tagPrisma);
+    } catch (error) {
+        console.error(error);
+        throw new Error('Database error. See server log for details.');
+    }
+};
+
 export default { getAllTags, getTagById, createTag };

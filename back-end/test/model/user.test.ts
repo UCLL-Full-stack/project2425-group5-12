@@ -1,4 +1,4 @@
-import exp from 'constants';
+import { DomainError } from '../../model/domainError';
 import { User } from '../../model/user';
 
 test('given: valid values for user, when: user is created, then: user is created with those values', () => {
@@ -8,7 +8,7 @@ test('given: valid values for user, when: user is created, then: user is created
         lastName: 'Doe',
         email: 'john.doe@ucll.be',
         password: 'john123',
-        role: 'user',
+        role: 'USER',
     });
 
     //then
@@ -16,7 +16,7 @@ test('given: valid values for user, when: user is created, then: user is created
     expect(user.getLastName()).toEqual('Doe');
     expect(user.getEmail()).toEqual('john.doe@ucll.be');
     expect(user.getPassword()).toEqual('john123');
-    expect(user.getRole()).toEqual('user');
+    expect(user.getRole()).toEqual('USER');
 });
 
 test('given: invalid first name for user, when: user is created, then: error is thrown', () => {
@@ -27,10 +27,11 @@ test('given: invalid first name for user, when: user is created, then: error is 
             lastName: 'Doe',
             email: 'john.doe@ucll.be',
             password: 'john123',
-            role: 'user',
+            role: 'USER',
         });
     };
 
     //then
     expect(user).toThrow('First name is required');
+    expect(user).toThrow(DomainError);
 });

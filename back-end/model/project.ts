@@ -1,5 +1,12 @@
+import { DomainError } from './domainError';
 import { Task } from './task';
 import { User } from './user';
+import {
+    Project as ProjectPrisma,
+    User as UserPrisma,
+    Task as TaskPrisma,
+    Tag as TagPrisma,
+} from '@prisma/client';
 
 export class Project {
     private id?: number;
@@ -24,8 +31,8 @@ export class Project {
         this.id = project.id;
         this.title = project.title;
         this.description = project.description;
-        this.done = false;
-        this.tasks = project.tasks || [];
+        this.done = project.done ?? false;
+        this.tasks = project.tasks ? [...project.tasks] : [];
         this.owner = project.owner;
         this.members = project.members || [this.owner];
     }
@@ -64,17 +71,17 @@ export class Project {
 
     addTask(task: Task) {
         if (!this.members.includes(task.getOwner())) {
-            throw new Error('Task owner not a member of project');
+            throw new DomainError('Task owner not a member of project');
         }
         if (this.tasks.includes(task)) {
-            throw new Error('Task already in project');
+            throw new DomainError('Task already in project');
         }
         this.tasks.push(task);
     }
 
     addMember(member: User) {
         if (this.members.includes(member)) {
-            throw new Error('User already member of project');
+            throw new DomainError('User already member of project');
         }
         this.members.push(member);
     }
@@ -89,13 +96,13 @@ export class Project {
 
     validate(project: { title: string; description: string; owner: User }) {
         if (!project.title?.trim()) {
-            throw new Error('Title is required');
+            throw new DomainError('Title is required');
         }
         if (!project.description?.trim()) {
-            throw new Error('Description is required');
+            throw new DomainError('Description is required');
         }
         if (!project.owner) {
-            throw new Error('Owner is required');
+            throw new DomainError('Owner is required');
         }
     }
 
@@ -111,5 +118,29 @@ export class Project {
             this.members.length == project.getMembers().length &&
             this.members.every((member, index) => member.equals(project.getMembers()[index]))
         );
+    }
+
+    static from({
+        id,
+        title,
+        description,
+        done,
+        tasks,
+        members,
+        owner,
+    }: ProjectPrisma & {
+        members: UserPrisma[];
+        owner: UserPrisma;
+        tasks: (TaskPrisma & { owner: UserPrisma; tags: TagPrisma[] })[];
+    }) {
+        return new Project({
+            id,
+            title,
+            description,
+            done,
+            tasks: tasks.map((task) => Task.from(task)),
+            members: members.map((member) => User.fromSafe(member)),
+            owner: User.fromSafe(owner),
+        });
     }
 }

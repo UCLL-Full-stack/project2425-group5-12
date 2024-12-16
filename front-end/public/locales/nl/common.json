@@ -1,0 +1,108 @@
+{
+  "home": {
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "role": "Rol"
+  },
+  "login": {
+    "form": {
+      "emailRequired": "E-mail is vereist!",
+      "passwordRequired": "Paswoord is vereist!",
+      "succesfullyLoggedIn": "Succesvol ingelogd!",
+      "login": "Log in",
+      "email": "E-mail",
+      "password": "Paswoord",
+      "new": "Nieuw?",
+      "createAccount": "Creëer jouw account"
+    }
+  },
+  "signup": {
+    "form": {
+      "emailRequired": "E-mail is vereist!",
+      "passwordRequired": "Wachtwoord is vereist!",
+      "firstnameRequired": "Voornaam is vereist!",
+      "lastnameRequired": "Achternaam is vereist!",
+      "succesfullyCreated": "Account succesvol aangemaakt!",
+      "signup": "Aanmelden",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "email": "E-mail",
+      "password": "Wachtwoord"
+    }
+  },
+  "projects": {
+    "page": {
+      "overview": "Projectoverzicht",
+      "newProject": "Nieuw Project",
+      "notFound": "Geen projecten gevonden!"
+    },
+    "memberForm": {
+      "addMember": "Voeg Deelnemers Toe",
+      "search": "Zoek of voeg deelnemer toe"
+    },
+    "details": {
+      "description": "Beschrijving:",
+      "owner": "Toegewezen aan:",
+      "tasks": "Taken",
+      "title": "Titel",
+      "deadline": "Deadline",
+      "assignee": "Toegewezen aan",
+      "noTasks": "Geen taken gevonden!",
+      "addTask": "Voeg Taak Toe",
+      "members": "Deelnemers",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "email": "E-mail",
+      "addMember": "Voeg Deelnemer Toe"
+    },
+    "form": {
+      "titleRequired": "Titel is vereist!",
+      "descriptionRequired": "Beschrijving is vereist!",
+      "createProject": "Creëer Nieuw Project",
+      "title": "Titel:",
+      "description": "Beschrijving",
+      "create": "Creëer"
+    },
+    "overview": {
+      "title": "Titel",
+      "status": "Status",
+      "owner": "Toegewezen aan",
+      "completed": "Voltooid",
+      "progress": "In Uitvoering"
+    }
+  },
+  "tasks": {
+    "add": { "backToProject": "Terug Naar Project" },
+    "edit": { "backToTask": "Terug Naar Taak" },
+    "form": {
+      "tagAlreadyExists": "Tag bestaat al.",
+      "titleRequired": "Titel is vereist!",
+      "descriptionRequired": "Beschrijving is vereist!",
+      "deadlineRequired": "Deadline mag niet in het verleden liggen!",
+      "succesfullyCreated": "Taak succesvol aangemaakt!",
+      "title": "Titel",
+      "description": "Beschrijving",
+      "deadline": "Deadline",
+      "addedTags": "Toegevoegde Tags",
+      "update": "Wijzig Taak",
+      "create": "Nieuwe Taak"
+    },
+    "details": {
+      "description": "Beschrijving:",
+      "deadline": "Deadline:",
+      "owner": "Toegewezen aan:",
+      "tags": "Tags:"
+    }
+  },
+  "loading": "Laden...",
+  "back": "Terug",
+  "header": { "myProjects": "Mijn Projecten:" },
+  "tags": {
+    "form": {
+      "tags": "Tags:",
+      "addTag": "Tag Toevoegen",
+      "options": "Tag opties",
+      "search": "Zoek of voeg tag toe"
+    }
+  }
+}

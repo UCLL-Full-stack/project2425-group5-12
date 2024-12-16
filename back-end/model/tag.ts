@@ -1,3 +1,5 @@
+import { User as UserPrisma, Tag as TagPrisma, Task as TaskPrisma } from '@prisma/client';
+import { DomainError } from './domainError';
 export class Tag {
     private id?: number;
     private title: string;
@@ -23,11 +25,18 @@ export class Tag {
 
     validate(tag: { title: string }) {
         if (!tag.title?.trim()) {
-            throw new Error('Title is required');
+            throw new DomainError('Title is required');
         }
     }
 
     equals(tag: Tag): boolean {
         return this.id === tag.getId() && this.title === tag.getTitle();
+    }
+
+    static from({ id, title }: TagPrisma) {
+        return new Tag({
+            id,
+            title,
+        });
     }
 }
