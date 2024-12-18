@@ -28,12 +28,12 @@ test('given: valid values for tag, when: tag is created, then: tag is created wi
     );
 });
 
-test('given: existing tags, when: getting all tasks, then: all tasks are returned', () => {
+test('given: existing tags, when: getting all tasks, then: all tasks are returned', async() => {
     //given
     mockTagDbGetAllTags.mockReturnValue(tags);
 
     //when
-    const fetchedTags = tagService.getAllTags();
+    const fetchedTags = await tagService.getAllTags();
 
     //then
     expect(fetchedTags.length).toEqual(1);

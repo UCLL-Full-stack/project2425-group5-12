@@ -86,12 +86,15 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-test('given: existing projects, when: getting all projects, then: all projects are returned', () => {
+test('given: existing projects, when: getting all projects, then: all projects are returned', async () => {
     //given
-    mockProjectDbGetAllProjects.mockReturnValue(projects);
+    mockProjectDbGetAllProjects.mockResolvedValue(projects);
 
     //when
-    const result = projectService.getAllProjects();
+    const result = await projectService.getAllProjects({
+        userRole: 'ADMIN',
+        userEmail: 'admin@example.com',
+    });
 
     //then
     expect(result.length).toEqual(1);
@@ -113,7 +116,7 @@ test('given: valid values for project, when: project is created, then: project i
     });
 
     //when
-    projectService.createProject({ title: 'Full-Stack', description: 'course', owner: userInput });
+    projectService.createProject({ title: 'Full-Stack', description: 'course', owner: userInput }, user.getRole());
 
     //then
     expect(mockProjectDbCreateProject).toHaveBeenCalledTimes(1);
@@ -181,14 +184,14 @@ test('given: invalid id for project, when: getting project by id, then: error is
     expect(project).toThrow('Project with id:1 not found.');
 });
 
-test('given: existing project, when: changing project status, then: status of project is changed', () => {
+test('given: existing project, when: changing project status, then: status of project is changed', async() => {
     //given
     mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
         return (id === 1 && project) || null;
     });
 
     //when
-    const result = projectService.toggleProjectDoneById({ id: 1 });
+    const result = await projectService.toggleProjectDoneById({ id: 1 });
 
     //then
     expect(result.getDone()).toEqual(true);
@@ -196,7 +199,7 @@ test('given: existing project, when: changing project status, then: status of pr
 
 test('given: existing project, when: changing project status, then: status of project is changed', () => {
     //given
-    mockProjectDbGetProjectById.mockReturnValue(null);
+    mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
     const project = () => projectService.toggleProjectDoneById({ id: 1 });
@@ -213,7 +216,7 @@ test('given: existing task and project, when: adding task to project, then: task
     mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
         return (id === 2 && task2) || null;
     });
-    mockProjectDbChangeProject.mockReturnValue(project);
+    mockProjectDbChangeProject.mockResolvedValue(project);
 
     //when
     const result = projectService.addTaskByIdByProjectId({ projectId: 1, taskId: 2 });

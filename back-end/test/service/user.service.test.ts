@@ -8,14 +8,14 @@ const users: User[] = [
         lastName: 'Doe',
         email: 'john.doe@ucll.be',
         password: 'john123',
-        role: 'user',
+        role: 'USER',
     }),
     new User({
         firstName: 'Jane',
         lastName: 'Toe',
         email: 'jane.toe@ucll.be',
         password: 'jane123',
-        role: 'user',
+        role: 'USER',
     }),
 ];
 
@@ -29,12 +29,12 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-test('given: existing users, when: getting all users, then: all users are returned', () => {
+test('given: existing users, when: getting all users, then: all users are returned', async () => {
     //given
     mockUserDbGetAllUsers.mockReturnValue(users);
 
     //when
-    const result = userService.getAllUsers();
+    const result = await userService.getAllUsers();
 
     //then
     expect(result.length).toEqual(2);
@@ -44,7 +44,7 @@ test('given: existing users, when: getting all users, then: all users are return
             lastName: 'Doe',
             email: 'john.doe@ucll.be',
             password: 'john123',
-            role: 'user',
+            role: 'USER',
         })
     );
     expect(result[1]).toEqual(
@@ -53,7 +53,7 @@ test('given: existing users, when: getting all users, then: all users are return
             lastName: 'Toe',
             email: 'jane.toe@ucll.be',
             password: 'jane123',
-            role: 'user',
+            role: 'USER',
         })
     );
 });

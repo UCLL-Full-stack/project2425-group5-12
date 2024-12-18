@@ -59,12 +59,12 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
-test('given: existing tasks, when: getting all tasks, then: all tasks are returned', () => {
+test('given: existing tasks, when: getting all tasks, then: all tasks are returned', async () => {
     //given
     mockTaskDbGetAllTasks.mockReturnValue(tasks);
 
     //when
-    const result = taskService.getAllTasks();
+    const result = await taskService.getAllTasks();
 
     //then
     expect(result.length).toEqual(1);
@@ -184,7 +184,7 @@ test('given: invalid tag for task, when: task is created, then: error is thrown'
     expect(task).toThrow('Tag with id:1 not found.');
 });
 
-test('given: existing tag and task, when: adding tag to task, then: tag is added to task', () => {
+test('given: existing tag and task, when: adding tag to task, then: tag is added to task', async () => {
     //given
     mockTagDbGetTagById.mockImplementation(({ id }: { id: number }) => {
         return (id === 2 && tag2) || null;
@@ -195,7 +195,7 @@ test('given: existing tag and task, when: adding tag to task, then: tag is added
     mockTaskDbChangeTask.mockReturnValue(task);
 
     //when
-    const result = taskService.addTagByIdByTaskId({ taskId: 1, tagId: 2 });
+    const result = await taskService.addTagByIdByTaskId({ taskId: 1, tagId: 2 });
 
     //then
     expect(result.getTags().length).toEqual(2);
@@ -217,7 +217,7 @@ test('given: invalid tag and existing task, when: adding tag to task, then: erro
     expect(result).toThrow(`Tag with id:2 not found.`);
 });
 
-test('given: task, when: change status of task, then: status of task is changed', () => {
+test('given: task, when: change status of task, then: status of task is changed', async () => {
     //given
     mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
         return (id === 1 && task) || null;
@@ -225,7 +225,7 @@ test('given: task, when: change status of task, then: status of task is changed'
     mockTaskDbChangeTask.mockReturnValue(task);
 
     //when
-    const result = taskService.toggleTaskDoneById({ id: 1 });
+    const result = await taskService.toggleTaskDoneById({ id: 1 });
 
     //then
     expect(result.getDone()).toEqual(true);
