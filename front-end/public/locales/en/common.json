@@ -104,5 +104,7 @@
       "options": "Tag Options",
       "search": "Search or add a tag"
     }
-  }
+  },
+  "noAccess": "Not Authorized",
+  "noAccessText": "You do not have permission to access this page"
 }

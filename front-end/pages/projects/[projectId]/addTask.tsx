@@ -13,10 +13,10 @@ const AddTask: React.FC = () => {
   const { projectId } = router.query;
   useEffect(() => {
     const loggedIn = sessionStorage.getItem("loggedIn");
-    if (loggedIn === "false") {
-      router.push("/login");
+    if (loggedIn === "false" || loggedIn === null) {
+      router.push("/403");
     }
-  }, []);
+  }, [router]);
 
   return (
     <>

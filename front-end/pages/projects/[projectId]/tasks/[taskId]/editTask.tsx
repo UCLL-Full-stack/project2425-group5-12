@@ -38,10 +38,22 @@ const editTask: React.FC = () => {
 
   useEffect(() => {
     const loggedIn = sessionStorage.getItem("loggedIn");
-    if (loggedIn === "false") {
-      router.push("/login");
+    const userId = sessionStorage.getItem("userId");
+    const userRole = sessionStorage.getItem("userRole");
+    if (loggedIn === "false" || loggedIn === null) {
+      router.push("/403");
+      return;
     }
-  }, []);
+
+    if (
+      selectedTask &&
+      userRole != "ADMIN" &&
+      selectedTask.owner.id != userId
+    ) {
+      router.push("/403");
+      return;
+    }
+  }, [router, selectedTask]);
 
   return (
     <>
