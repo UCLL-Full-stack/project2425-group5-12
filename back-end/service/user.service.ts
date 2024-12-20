@@ -33,7 +33,6 @@ const createUser = async ({
         title: 'TO DO',
         description: 'Your default to do list.',
         owner: createdUser,
-        members: [createdUser],
     });
 
     await projectDb.createProject({ project: toDo });

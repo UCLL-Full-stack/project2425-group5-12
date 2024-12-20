@@ -24,22 +24,19 @@ const createProject = async (
     { title, description, owner: userInput }: ProjectInput,
     userRole: string
 ): Promise<Project> => {
-    if (userRole === 'ADMIN' || userRole === 'PROJECT_MANAGER') {
-        const projects = await projectDb.getAllProjects();
-        if (projects.some((project) => project.getTitle() === title)) {
-            throw new Error(`Project with title:${title} already exists.`);
-        }
-        if (!userInput.id) throw new Error('Owner id is required.');
-        const owner = await userDb.getUserById({ id: userInput.id });
-        console.log(owner);
-        if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
-
-        const project = new Project({ title, description, owner });
-        return await projectDb.createProject({ project });
-    }
-    if (userRole === 'USER')
+    if (userRole !== 'ADMIN' && userRole !== 'PROJECT_MANAGER') {
         throw new UnauthorizedError('invalid_token', { message: 'Not authorized.' });
-    throw new UnauthorizedError('credentials_required', { message: 'Give role' });
+    }
+    const projects = await projectDb.getAllProjects();
+    if (projects.some((project) => project.getTitle() === title)) {
+        throw new Error(`Project with title:${title} already exists.`);
+    }
+    if (!userInput.id) throw new Error('Owner id is required.');
+    const owner = await userDb.getUserById({ id: userInput.id });
+    if (!owner) throw new Error(`Owner with id:${userInput.id} not found.`);
+
+    const project = new Project({ title, description, owner });
+    return await projectDb.createProject({ project });
 };
 
 const getProjectById = async ({ id }: { id: number }): Promise<Project> => {
