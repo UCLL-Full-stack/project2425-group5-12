@@ -109,9 +109,9 @@ test('given: existing projects, when: getting all projects, then: all projects a
     );
 });
 
-test('given: valid values for project, when: project is created, then: project is created with those values', () => {
+test('given: valid values for project, when: project is created, then: project is created with those values', async () => {
     //given
-    mockUserDbGetUserById.mockImplementation(({ id }: { id: number }) => {
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && user) || null;
     });
 
@@ -134,7 +134,6 @@ test('given: valid values for project, when: project is created, then: project i
 test('given: invalid values for project, when: project is created, then: error is thrown', async () => {
     //given
     mockUserDbGetUserById.mockResolvedValue(null);
-    console.log(await mockUserDbGetUserById.({ id: 1 }));
 
     //when
     const project = () =>
@@ -151,9 +150,9 @@ test('given: invalid values for project, when: project is created, then: error i
     expect(project).rejects.toThrow('Owner with id:1 not found.');
 });
 
-test('given: existing projects, when: getting project by id, then: project with given id is returned', () => {
+test('given: existing projects, when: getting project by id, then: project with given id is returned', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
+    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && project) || null;
     });
 
@@ -173,7 +172,7 @@ test('given: existing projects, when: getting project by id, then: project with 
     );
 });
 
-test('given: invalid id for project, when: getting project by id, then: error is thrown', () => {
+test('given: invalid id for project, when: getting project by id, then: error is thrown', async () => {
     //given
     mockProjectDbGetProjectById.mockResolvedValue(null);
 
@@ -186,7 +185,7 @@ test('given: invalid id for project, when: getting project by id, then: error is
 
 test('given: existing project, when: changing project status, then: status of project is changed', async() => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
+    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && project) || null;
     });
 
@@ -208,61 +207,18 @@ test('given: existing project, when: changing project status, then: status of pr
     expect(project).toThrow('Project with id:1 not found.');
 });
 
-test('given: existing task and project, when: adding task to project, then: task id added to project', () => {
+test('given: existing member and project, when: adding member to project, then: member id added to project', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
+    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && project) || null;
     });
-    mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
-        return (id === 2 && task2) || null;
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
+        return (id === 2 && user2) || null;
     });
     mockProjectDbChangeProject.mockResolvedValue(project);
 
     //when
-    const result = projectService.addTaskByIdByProjectId({ projectId: 1, taskId: 2 });
-
-    //then
-    expect(result.getTasks().length).toEqual(2);
-    expect(result.getTasks()[1]).toEqual(task2);
-});
-
-test('given: invalid id for project, when: adding task to project, then: error is thrown', () => {
-    //given
-    mockProjectDbGetProjectById.mockReturnValue(null);
-
-    //when
-    const result = () => projectService.addTaskByIdByProjectId({ projectId: 1, taskId: 2 });
-
-    //then
-    expect(result).toThrow('Project with id:1 not found.');
-});
-
-test('given: invalid task id and project, when: adding task to project, then: error is thrown', () => {
-    //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
-    mockTaskDbGetTaskById.mockReturnValue(null);
-
-    //when
-    const result = () => projectService.addTaskByIdByProjectId({ projectId: 1, taskId: 2 });
-
-    //then
-    expect(result).toThrow('Task with id:2 not found.');
-});
-
-test('given: existing member and project, when: adding member to project, then: member id added to project', () => {
-    //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
-    mockUserDbGetUserById.mockImplementation(({ id }: { id: number }) => {
-        return (id === 2 && user2) || null;
-    });
-    mockProjectDbChangeProject.mockReturnValue(project);
-
-    //when
-    const result = projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2 });
+    const result = await projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
 
     //then
     expect(result.getMembers().length).toEqual(2);
@@ -271,24 +227,24 @@ test('given: existing member and project, when: adding member to project, then: 
 
 test('given: invalid id for project, when: adding member to project, then: error is thrown', () => {
     //given
-    mockProjectDbGetProjectById.mockReturnValue(null);
+    mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
-    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2 });
+    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
 
     //then
     expect(result).toThrow('Project with id:1 not found.');
 });
 
-test('given: invalid member id and project, when: adding member to project, then: error is thrown', () => {
+test('given: invalid member id and project, when: adding member to project, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(({ id }: { id: number }) => {
+    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && project) || null;
     });
-    mockUserDbGetUserById.mockReturnValue(null);
+    mockUserDbGetUserById.mockResolvedValue(null);
 
     //when
-    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2 });
+    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
 
     //then
     expect(result).toThrow('User with id:2 not found.');

@@ -5,8 +5,8 @@ import tagService from '../../service/tag.service';
 
 const tags: Tag[] = [new Tag({ id: 1, title: 'high-priority' })];
 
-let mockTagDbCreateTag: jest.SpyInstance<Tag, [Tag]>;
-let mockTagDbGetAllTags: jest.SpyInstance<Tag[]>;
+let mockTagDbCreateTag: jest.SpyInstance<Promise<Tag>, [Tag]>;
+let mockTagDbGetAllTags: jest.SpyInstance<Promise<Tag[]>, []>;
 
 beforeEach(() => {
     mockTagDbCreateTag = jest.spyOn(tagDb, 'createTag');
@@ -30,7 +30,7 @@ test('given: valid values for tag, when: tag is created, then: tag is created wi
 
 test('given: existing tags, when: getting all tasks, then: all tasks are returned', async() => {
     //given
-    mockTagDbGetAllTags.mockReturnValue(tags);
+    mockTagDbGetAllTags.mockResolvedValue(tags);
 
     //when
     const fetchedTags = await tagService.getAllTags();

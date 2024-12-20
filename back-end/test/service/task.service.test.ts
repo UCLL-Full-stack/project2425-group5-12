@@ -9,6 +9,7 @@ import userDb from '../../repository/user.db';
 import tagDb from '../../repository/tag.db';
 import { TagInput, TaskInput, UserInput } from '../../types';
 import { mock } from 'node:test';
+import userService from '../../service/user.service';
 
 const userInput: UserInput = {
     id: 1,
@@ -16,10 +17,10 @@ const userInput: UserInput = {
     lastName: 'Doe',
     email: 'jack.doe@ucll.be',
     password: 'jack123',
-    role: 'USER',
+    role: 'ADMIN',
 };
 
-const user = new User({ ...userInput });
+const user = new User({ firstName: userInput.firstName || "", lastName: userInput.lastName || "", email: userInput.email, password: userInput.password, role: userInput.role || "USER" });
 
 const deadline = set(new Date(), { year: 2025, month: 10, date: 28, hours: 15 });
 
@@ -35,24 +36,27 @@ const task = new Task({
     deadline,
     owner: user,
     tags: [tag],
+    projectId: 2
 });
 
 const tasks: Task[] = [task];
 
-let mockTaskDbGetAllTasks: jest.SpyInstance<Task[]>;
-let mockTaskDbCreateTask: jest.SpyInstance<Task, [Task]>;
-let mockTaskDbGetTaskById: jest.SpyInstance<Task | null, [{ id: number }]>;
-let mockTaskDbChangeTask: jest.SpyInstance<Task, [Task]>;
-let mockUserDbGetUserById: jest.SpyInstance<User | null, [{ id: number }]>;
-let mockTagDbGetTagById: jest.SpyInstance<Tag | null, [{ id: number }]>;
+let mockTaskDbGetAllTasks: jest.SpyInstance<Promise<Task[]>, []>;
+let mockTaskDbCreateTask: jest.SpyInstance<Promise<Task>, [Task]>;
+let mockTaskDbGetTaskById: jest.SpyInstance<Promise<Task | null>, [{ id: number }]>;
+let mockTaskDbChangeTask: jest.SpyInstance<Promise<Task>, [Task]>;
+let mockUserDbGetUserById: jest.SpyInstance<Promise<User | null>, [{ id: number }]>;
+let mockTagDbGetTagById: jest.SpyInstance<Promise<Tag | null>, [{ id: number }]>;
+let mockTaskDbDeleteTaskById: jest.SpyInstance<Promise<void>, [ id: number ]>;
 
 beforeEach(() => {
     mockTaskDbGetAllTasks = jest.spyOn(taskDb, 'getAllTasks');
     mockTaskDbCreateTask = jest.spyOn(taskDb, 'createTask');
     mockTaskDbGetTaskById = jest.spyOn(taskDb, 'getTaskById');
-    mockTaskDbChangeTask = jest.spyOn(taskDb, 'changeTask');
+    mockTaskDbChangeTask = jest.spyOn(taskDb, 'updateTask');
     mockUserDbGetUserById = jest.spyOn(userDb, 'getUserById');
     mockTagDbGetTagById = jest.spyOn(tagDb, 'getTagById');
+    mockTaskDbDeleteTaskById = jest.spyOn(taskDb, 'deleteTaskById');
 });
 
 afterEach(() => {
@@ -61,7 +65,7 @@ afterEach(() => {
 
 test('given: existing tasks, when: getting all tasks, then: all tasks are returned', async () => {
     //given
-    mockTaskDbGetAllTasks.mockReturnValue(tasks);
+    mockTaskDbGetAllTasks.mockResolvedValue(tasks);
 
     //when
     const result = await taskService.getAllTasks();
@@ -76,18 +80,19 @@ test('given: existing tasks, when: getting all tasks, then: all tasks are return
             deadline: deadline,
             owner: user,
             tags: [tag],
+            projectId: 1
         })
     );
 });
 
-test('given: existing task, when: getting task by id, then: task with that id is returned', () => {
+test('given: existing task, when: getting task by id, then: task with that id is returned', async () => {
     //given
-    mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
+    mockTaskDbGetTaskById.mockImplementation(async({ id }: { id: number }) => {
         return (id === 1 && task) || null;
     });
 
     //when
-    const result = taskService.getTaskById({ id: 1 });
+    const result = await taskService.getTaskById({ id: 1 });
 
     //then
     expect(result).toEqual(
@@ -98,13 +103,14 @@ test('given: existing task, when: getting task by id, then: task with that id is
             deadline: deadline,
             owner: user,
             tags: [tag],
+            projectId: 1
         })
     );
 });
 
 test('given: invalid id for task, when: getting task by id, then: error is thrown', () => {
     //given
-    mockTaskDbGetTaskById.mockReturnValue(null);
+    mockTaskDbGetTaskById.mockResolvedValue(null);
 
     //when
     const task = () => taskService.getTaskById({ id: 1 });
@@ -113,12 +119,12 @@ test('given: invalid id for task, when: getting task by id, then: error is throw
     expect(task).toThrow('Task with id:1 not found');
 });
 
-test('given: valid values for task, when: task is created, then: task is created with those values', () => {
+test('given: valid values for task, when: task is created, then: task is created with those values', async () => {
     //given
-    mockTagDbGetTagById.mockImplementation(({ id }: { id: number }) => {
+    mockTagDbGetTagById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && tag) || null;
     });
-    mockUserDbGetUserById.mockImplementation(({ id }: { id: number }) => {
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && user) || null;
     });
 
@@ -129,6 +135,7 @@ test('given: valid values for task, when: task is created, then: task is created
         deadline,
         owner: userInput,
         tags: [tagInput],
+        projectId: 1
     });
 
     //then
@@ -146,7 +153,7 @@ test('given: valid values for task, when: task is created, then: task is created
 
 test('given: invalid owner for task, when: task is created, then: error is thrown', () => {
     //given
-    mockUserDbGetUserById.mockReturnValue(null);
+    mockUserDbGetUserById.mockResolvedValue(null);
 
     //when
     const task = () =>
@@ -156,19 +163,20 @@ test('given: invalid owner for task, when: task is created, then: error is throw
             deadline,
             owner: userInput,
             tags: [tagInput],
+            projectId: 1
         });
 
     //then
     expect(task).toThrow('Owner with id:1 not found');
 });
 
-test('given: invalid tag for task, when: task is created, then: error is thrown', () => {
+test('given: invalid tag for task, when: task is created, then: error is thrown', async() => {
     //given
-    mockUserDbGetUserById.mockImplementation(({ id }: { id: number }) => {
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && user) || null;
     });
 
-    mockTagDbGetTagById.mockReturnValue(null);
+    mockTagDbGetTagById.mockResolvedValue(null);
 
     //when
     const task = () =>
@@ -178,6 +186,7 @@ test('given: invalid tag for task, when: task is created, then: error is thrown'
             deadline,
             owner: userInput,
             tags: [tagInput],
+            projectId: 1
         });
 
     //then
@@ -186,13 +195,13 @@ test('given: invalid tag for task, when: task is created, then: error is thrown'
 
 test('given: existing tag and task, when: adding tag to task, then: tag is added to task', async () => {
     //given
-    mockTagDbGetTagById.mockImplementation(({ id }: { id: number }) => {
+    mockTagDbGetTagById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 2 && tag2) || null;
     });
-    mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
+    mockTaskDbGetTaskById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && task) || null;
     });
-    mockTaskDbChangeTask.mockReturnValue(task);
+    mockTaskDbChangeTask.mockResolvedValue(task);
 
     //when
     const result = await taskService.addTagByIdByTaskId({ taskId: 1, tagId: 2 });
@@ -202,11 +211,11 @@ test('given: existing tag and task, when: adding tag to task, then: tag is added
     expect(result.getTags()[1]).toEqual(tag2);
 });
 
-test('given: invalid tag and existing task, when: adding tag to task, then: error is thrown', () => {
+test('given: invalid tag and existing task, when: adding tag to task, then: error is thrown', async () => {
     //given
-    mockTagDbGetTagById.mockReturnValue(null);
+    mockTagDbGetTagById.mockResolvedValue(null);
 
-    mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
+    mockTaskDbGetTaskById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && task) || null;
     });
 
@@ -217,12 +226,12 @@ test('given: invalid tag and existing task, when: adding tag to task, then: erro
     expect(result).toThrow(`Tag with id:2 not found.`);
 });
 
-test('given: task, when: change status of task, then: status of task is changed', async () => {
+test('given: task, when: change status of task, then: status of task is changed', async() => {
     //given
-    mockTaskDbGetTaskById.mockImplementation(({ id }: { id: number }) => {
+    mockTaskDbGetTaskById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 1 && task) || null;
     });
-    mockTaskDbChangeTask.mockReturnValue(task);
+    mockTaskDbChangeTask.mockResolvedValue(task);
 
     //when
     const result = await taskService.toggleTaskDoneById({ id: 1 });
@@ -233,11 +242,64 @@ test('given: task, when: change status of task, then: status of task is changed'
 
 test('given: invalid tag and existing task, when: adding tag to task, then: error is thrown', () => {
     //given
-    mockTaskDbGetTaskById.mockReturnValue(null);
+    mockTaskDbGetTaskById.mockResolvedValue(null);
 
     //when
     const result = () => taskService.toggleTaskDoneById({ id: 1 });
 
     //then
     expect(result).toThrow(`Task with id:1 not found.`);
+});
+
+test('given: valid task id, when: deleting a task, then: task is deleted', async() => {
+    //given
+    mockTaskDbGetTaskById.mockImplementation(async ({ id }: { id: number }) => {
+        return (id === 1 && task) || null;
+    });
+    mockTaskDbDeleteTaskById.mockResolvedValue();
+
+    //when
+    const result = await taskService.deleteTaskById({id: 1, userRole: 'ADMIN', userEmail: 'jack.doe@ucll.be'});
+
+    //then
+    expect(result.toString()).toEqual("true");
+});
+
+test('given: invalid task id, when: deleting a task, then: task is deleted', async() => {
+    //given
+    mockTaskDbGetTaskById.mockResolvedValue(null);
+
+    //when
+    const result = async () => await taskService.deleteTaskById({id: 500, userRole: 'ADMIN', userEmail: 'jack.doe@ucll.be'});
+
+    //then
+    expect(result).rejects.toThrow(`Task with id:500 not found.`);
+});
+
+test('given: invalid user id, when: deleting a task, then: task is deleted', async() => {
+    //given
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
+        return (id === 1 && user) || null;
+    });
+    mockUserDbGetUserById.mockResolvedValue(null);
+
+    //when
+    const result = async () => await taskService.deleteTaskById({id: 500, userRole: 'ADMIN', userEmail: 'jack.doe@ucll.be'});
+
+    //then
+    expect(result).rejects.toThrow(`User with id:${user.getId()} not found.`);
+});
+
+test('given: invalid owner, when: deleting a task, then: task is deleted', async() => {
+    //given
+    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
+        return (id === 1 && user) || null;
+    });
+    mockUserDbGetUserById.mockResolvedValue(null);
+
+    //when
+    const result = async () => await taskService.deleteTaskById({id: 500, userRole: 'ADMIN', userEmail: 'jack.doe@ucll.be'});
+
+    //then
+    expect(result).rejects.toThrow(`User with id:${user.getId()} not found.`);
 });
