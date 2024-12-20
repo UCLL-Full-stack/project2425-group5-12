@@ -18,6 +18,7 @@ afterEach(() => {
 });
 
 test('given: valid values for tag, when: tag is created, then: tag is created with those values', () => {
+    mockTagDbCreateTag.mockResolvedValue(tags[0]);
     //when
     tagService.createTag({ title: 'Development' });
 
