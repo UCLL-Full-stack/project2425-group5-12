@@ -104,5 +104,7 @@
       "options": "Tag opties",
       "search": "Zoek of voeg tag toe"
     }
-  }
+  },
+  "noAccess": "Geen Toegang",
+  "noAccessText": "Je hebt geen toegang tot deze pagina"
 }

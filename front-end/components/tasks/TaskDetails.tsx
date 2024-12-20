@@ -1,4 +1,4 @@
-import TaskService from "@/services/TaskService";
+import TaskService from "../../services/TaskService";
 import { StatusMessage, Task } from "@/types";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -51,7 +51,10 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
       {task && (
         <div className="m-0 max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
           <div className="flex items-center space-x-2">
-            <h2 className="text-3xl font-semibold text-gray-700">
+            <h2
+              data-testid={`task-details-title`}
+              className="text-3xl font-semibold text-gray-700"
+            >
               {task.title}
             </h2>
             {(userId === task.owner.id || userRole === "ADMIN") && (
@@ -95,13 +98,19 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
           </div>
           <table className="w-full border-collapse text-left text-gray-700">
             <tbody>
-              <tr className="border-b">
+              <tr
+                data-testid={`task-details-row-description`}
+                className="border-b"
+              >
                 <td className="py-3 font-semibold text-gray-600">
                   {t("tasks.details.description")}
                 </td>
                 <td className="py-3">{task.description}</td>
               </tr>
-              <tr className="border-b">
+              <tr
+                data-testid={`task-details-row-deadline`}
+                className="border-b"
+              >
                 <td className="py-3 font-semibold text-gray-600">
                   {t("tasks.details.deadline")}
                 </td>
@@ -109,7 +118,7 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
                   {new Date(task.deadline).toLocaleString()}
                 </td>
               </tr>
-              <tr className="border-b">
+              <tr data-testid={`task-details-row-owner`} className="border-b">
                 <td className="py-3 font-semibold text-gray-600">
                   {t("tasks.details.owner")}
                 </td>
@@ -117,7 +126,7 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
                   {task.owner.firstName} {task.owner.lastName}
                 </td>
               </tr>
-              <tr>
+              <tr data-testid={`task-details-row-tags`}>
                 <td className="py-3 font-semibold text-gray-600 align-top">
                   {t("tasks.details.tags")}
                 </td>
@@ -139,6 +148,7 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
                   {(userId === task.owner.id || userRole === "ADMIN") && (
                     <div className="flex items-center space-x-2">
                       <Link
+                        data-testid={`task-details-edit`}
                         href={`/projects/${projectId}/tasks/${taskId}/editTask`}
                         className="group"
                       >
@@ -152,7 +162,10 @@ const TaskDetails: React.FC<Props> = ({ task }: Props) => {
                           <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
                         </svg>
                       </Link>
-                      <button onClick={() => handleTaskDelete(task.id)}>
+                      <button
+                        data-testid={`task-details-delete`}
+                        onClick={() => handleTaskDelete(task.id)}
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"

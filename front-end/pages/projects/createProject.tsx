@@ -12,10 +12,16 @@ const CreateProject: React.FC = () => {
   const router = useRouter();
   useEffect(() => {
     const loggedIn = sessionStorage.getItem("loggedIn");
-    if (loggedIn === "false") {
-      router.push("/login");
+    const userRole = sessionStorage.getItem("userRole");
+    if (
+      loggedIn === "false" ||
+      loggedIn === null ||
+      userRole === null ||
+      userRole === "USER"
+    ) {
+      router.push("/403");
     }
-  }, []);
+  }, [router]);
 
   return (
     <>

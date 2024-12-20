@@ -131,7 +131,7 @@ test('given: valid values for project, when: project is created, then: project i
 test('given: invalid values for project, when: project is created, then: error is thrown', async () => {
     //given
     mockUserDbGetUserById.mockResolvedValue(null);
-    console.log(await mockUserDbGetUserById.({ id: 1 }));
+    console.log(await mockUserDbGetUserById({ id: 1 }));
 
     //when
     const project = () =>
