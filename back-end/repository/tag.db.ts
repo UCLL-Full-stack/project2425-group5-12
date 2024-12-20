@@ -19,6 +19,7 @@ const getAllTags = async (): Promise<Tag[]> => {
         const tagsPrisma = await database.tag.findMany();
         return tagsPrisma.map((tagPrisma) => Tag.from(tagPrisma));
     } catch (error) {
+        console.log(error);
         throw new Error('Database error. See server log for details.');
     }
 };
