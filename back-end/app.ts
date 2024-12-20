@@ -12,8 +12,10 @@ import taskService from './service/task.service';
 import { set } from 'date-fns';
 import projectService from './service/project.service';
 import { expressjwt } from 'express-jwt';
+import helmet from 'helmet';
 
 const app = express();
+app.use(helmet());
 
 dotenv.config();
 const port = process.env.APP_PORT || 3000;

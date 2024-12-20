@@ -33,7 +33,6 @@ const createUser = async ({
         title: 'TO DO',
         description: 'Your default to do list.',
         owner: createdUser,
-        members: [createdUser],
     });
 
     await projectDb.createProject({ project: toDo });
@@ -46,14 +45,14 @@ const createUser = async ({
 
 const authenticate = async ({ email, password }: UserInput): Promise<AuthenticationResponse> => {
     const user = await userDb.getUserByEmail({ email });
-    if (!user) throw new Error(`User with email: ${email} not found.`);
+    if (!user) throw new Error(`Problem logging in, try again!`);
     const userId = user.getId();
-    if (!userId) throw new Error(`User id not found.`);
+    if (!userId) throw new Error(`Problem logging in, try again!`);
     const userPassword = user.getPassword();
-    if (!userPassword) throw new Error(`Invalid user.(no password)`);
+    if (!userPassword) throw new Error(`Problem logging in, try again!`);
     const isCorrectPassword = await bcrypt.compare(password, userPassword);
 
-    if (!isCorrectPassword) throw new Error('Password incorrect.');
+    if (!isCorrectPassword) throw new Error('Problem logging in, try again!');
 
     return {
         token: generateJwtToken({ userEmail: email, userRole: user.getRole() }),
