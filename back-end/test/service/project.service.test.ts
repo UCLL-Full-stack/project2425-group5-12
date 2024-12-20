@@ -120,16 +120,16 @@ test('given: valid values for project, when: project is created, then: project i
         role: 'ADMIN',
     });
 
-    mockUserDbGetUserById.mockResolvedValue(owner); // Ensure mock resolves to a User instance
-    mockProjectDbGetAllProjects.mockResolvedValue([]); // Ensure no projects exist already
+    mockUserDbGetUserById.mockResolvedValue(owner);
+    mockProjectDbGetAllProjects.mockResolvedValue([]);
     mockProjectDbCreateProject.mockResolvedValue(
-        new Project({ title: 'Full-Stack', description: 'course', owner }) // Ensure mock returns a valid Project
+        new Project({ title: 'Full-Stack', description: 'course', owner })
     );
 
     // When
     await projectService.createProject(
-        { title: 'Full-Stack', description: 'course', owner: { id: 1, ...userInput } }, // Pass the user input
-        owner.getRole() // Pass the correct role
+        { title: 'Full-Stack', description: 'course', owner: { id: 1, ...userInput } },
+        owner.getRole()
     );
 
     // Then
@@ -137,12 +137,11 @@ test('given: valid values for project, when: project is created, then: project i
     expect(mockProjectDbCreateProject).toHaveBeenLastCalledWith(
         expect.objectContaining({
             project: expect.objectContaining({
-                // Add "project" wrapper in the expectation
                 title: 'Full-Stack',
                 description: 'course',
-                owner, // Ensure the owner matches the User instance
-                members: [owner], // Ensure the owner is included in the members
-                tasks: [], // Ensure no tasks are initially created
+                owner,
+                members: [owner],
+                tasks: [],
             }),
         })
     );
@@ -188,13 +187,13 @@ test('given: existing projects, when: getting project by id, then: project with 
 
 test('given: invalid id for project, when: getting project by id, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockResolvedValue(null); // Ensure null is returned for this test case
+    mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
     const projecttest = async () => await projectService.getProjectById({ id: 1 });
 
     //then
-    await expect(projecttest()).rejects.toThrow('Project with id:1 not found.'); // Ensure error is thrown as expected
+    await expect(projecttest()).rejects.toThrow('Project with id:1 not found.');
 });
 
 test('given: existing project, when: changing project status, then: status of project is changed', async () => {
@@ -212,13 +211,13 @@ test('given: existing project, when: changing project status, then: status of pr
 
 test('given: inxisting project id, when: changing project status, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockResolvedValue(null); // Make sure 'project' is defined elsewhere
+    mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
     const toggleStatus = async () => await projectService.toggleProjectDoneById({ id: 1 });
 
     //then
-    await expect(toggleStatus()).rejects.toThrow('Project with id:1 not found.'); // Expect the error to be thrown
+    await expect(toggleStatus()).rejects.toThrow('Project with id:1 not found.');
 });
 
 test('given: existing member and project, when: adding member to project, then: member id added to project', async () => {

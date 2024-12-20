@@ -77,7 +77,7 @@ test('given: existing users, when: getting all users, then: all users are return
 test('given: valid values for user, when: creating a user, then: user is created', async () => {
     mockUserDbGetUserByEmail.mockResolvedValue(null);
     mockUserDbCreateUser.mockImplementation(async (user) => {
-        return user || null; // Ensure the mock returns a User instance
+        return user || null;
     });
     mockProjectDbCreateProject.mockResolvedValue(project);
 
@@ -106,7 +106,6 @@ test('given: already existing user, when: creating a user, then: error is thrown
     //given
     mockUserDbGetUserByEmail.mockResolvedValue(users[1]);
 
-    //when & then
     await expect(
         userService.createUser({
             firstName: 'Jane',
@@ -121,7 +120,6 @@ test('given: already existing user, when: creating a user, then: error is thrown
 test('given: invalid values for user, when: creating a user, then: error is thrown', async () => {
     mockUserDbGetUserByEmail.mockResolvedValue(null);
 
-    //when & then
     await expect(
         userService.createUser({
             firstName: '',

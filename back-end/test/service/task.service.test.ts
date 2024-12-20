@@ -63,7 +63,6 @@ let mockTaskDbDeleteTaskById: jest.SpyInstance<Promise<void>, [id: number]>;
 let mockUserDbGetUserByEmail: jest.SpyInstance<Promise<User | null>, [{ email: string }]>;
 let mockProjectDbGetProjectById: jest.SpyInstance<Promise<Project | null>, [{ id: number }]>;
 
-// Reset mocks before each test
 beforeEach(() => {
     mockTaskDbGetAllTasks = jest.spyOn(taskDb, 'getAllTasks');
     mockTaskDbCreateTask = jest.spyOn(taskDb, 'createTask');
@@ -76,12 +75,10 @@ beforeEach(() => {
     mockProjectDbGetProjectById = jest.spyOn(projectDb, 'getProjectById');
 });
 
-// Reset mocks after each test
 afterEach(() => {
     jest.clearAllMocks();
 });
 
-// Test for getting all tasks
 test('given: existing tasks, when: getting all tasks, then: all tasks are returned', async () => {
     mockTaskDbGetAllTasks.mockResolvedValue(tasks);
 
@@ -101,7 +98,6 @@ test('given: existing tasks, when: getting all tasks, then: all tasks are return
     );
 });
 
-// Test for getting task by id
 test('given: existing task, when: getting task by id, then: task with that id is returned', async () => {
     mockTaskDbGetTaskById.mockImplementation(async ({ id }: { id: number }) => {
         return id === 1 ? task : null;
@@ -122,14 +118,12 @@ test('given: existing task, when: getting task by id, then: task with that id is
     );
 });
 
-// Test for invalid task id
 test('given: invalid id for task, when: getting task by id, then: error is thrown', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(null);
 
     await expect(taskService.getTaskById({ id: 1 })).rejects.toThrow('Task with id:1 not found');
 });
 
-// Test for creating task with valid values
 test('given: valid values for task, when: task is created, then: task is created with those values', async () => {
     mockTagDbGetTagById.mockImplementation(async ({ id }: { id: number }) => {
         return id === 1 ? tag : null;
@@ -170,7 +164,6 @@ test('given: valid values for task, when: task is created, then: task is created
     );
 });
 
-// Test for invalid owner when creating task
 test('given: invalid owner for task, when: task is created, then: error is thrown', async () => {
     mockUserDbGetUserById.mockResolvedValue(null);
 
@@ -186,7 +179,6 @@ test('given: invalid owner for task, when: task is created, then: error is throw
     ).rejects.toThrow('Owner with id:1 not found');
 });
 
-// Test for invalid tag when creating task
 test('given: invalid tag for task, when: task is created, then: error is thrown', async () => {
     mockUserDbGetUserById.mockResolvedValue(user);
     mockTagDbGetTagById.mockResolvedValue(null);
@@ -203,7 +195,6 @@ test('given: invalid tag for task, when: task is created, then: error is thrown'
     ).rejects.toThrow('Tag with id:1 not found.');
 });
 
-// Test for adding a tag to an existing task
 test('given: existing tag and task, when: adding tag to task, then: tag is added to task', async () => {
     mockTagDbGetTagById.mockResolvedValue(tag2);
     mockTaskDbGetTaskById.mockResolvedValue(task);
@@ -215,7 +206,6 @@ test('given: existing tag and task, when: adding tag to task, then: tag is added
     expect(result.getTags()[1]).toEqual(tag2);
 });
 
-// Test for invalid tag when adding to task
 test('given: invalid tag and existing task, when: adding tag to task, then: error is thrown', async () => {
     mockTagDbGetTagById.mockResolvedValue(null);
     mockTaskDbGetTaskById.mockResolvedValue(task);
@@ -225,7 +215,6 @@ test('given: invalid tag and existing task, when: adding tag to task, then: erro
     );
 });
 
-// Test for changing task status
 test('given: task, when: change status of task, then: status of task is changed', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(task);
     mockTaskDbChangeTask.mockResolvedValue(task);
@@ -235,7 +224,6 @@ test('given: task, when: change status of task, then: status of task is changed'
     expect(result.getDone()).toEqual(true);
 });
 
-// Test for invalid task when changing status
 test('given: invalid task id, when: changing task status, then: error is thrown', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(null);
 
@@ -244,7 +232,6 @@ test('given: invalid task id, when: changing task status, then: error is thrown'
     );
 });
 
-// Test for deleting a valid task
 test('given: valid task id, when: deleting a task, then: task is deleted', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(task);
     mockTaskDbDeleteTaskById.mockResolvedValue();
@@ -258,7 +245,6 @@ test('given: valid task id, when: deleting a task, then: task is deleted', async
     expect(result.toString()).toEqual('Task deleted successfully!');
 });
 
-// Test for invalid task when deleting
 test('given: invalid task id, when: deleting a task, then: error is thrown', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(null);
 
@@ -267,7 +253,6 @@ test('given: invalid task id, when: deleting a task, then: error is thrown', asy
     ).rejects.toThrow('Task with id:500 not found.');
 });
 
-// Test for deleting a task with invalid user
 test('given: invalid user email, when: deleting a task, then: error is thrown', async () => {
     mockTaskDbGetTaskById.mockResolvedValue(task);
     mockUserDbGetUserByEmail.mockResolvedValue(null);
