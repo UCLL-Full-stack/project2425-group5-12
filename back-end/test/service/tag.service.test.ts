@@ -28,7 +28,7 @@ test('given: valid values for tag, when: tag is created, then: tag is created wi
     );
 });
 
-test('given: existing tags, when: getting all tasks, then: all tasks are returned', async() => {
+test('given: existing tags, when: getting all tasks, then: all tasks are returned', async () => {
     //given
     mockTagDbGetAllTags.mockResolvedValue(tags);
 

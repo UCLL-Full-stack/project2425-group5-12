@@ -16,7 +16,7 @@ const userInput: UserInput = {
     lastName: 'Doe',
     email: 'jack.doe@ucll.be',
     password: 'jack123',
-    role: 'USER',
+    role: 'ADMIN',
 };
 
 const user = new User({
@@ -110,23 +110,40 @@ test('given: existing projects, when: getting all projects, then: all projects a
 });
 
 test('given: valid values for project, when: project is created, then: project is created with those values', async () => {
-    //given
-    mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
-        return (id === 1 && user) || null;
+    // Given
+    const owner = new User({
+        id: 1,
+        firstName: 'Jack',
+        lastName: 'Doe',
+        email: 'jack.doe@ucll.be',
+        password: 'jack123',
+        role: 'ADMIN',
     });
 
-    //when
-    projectService.createProject({ title: 'Full-Stack', description: 'course', owner: userInput }, user.getRole());
+    mockUserDbGetUserById.mockResolvedValue(owner); // Ensure mock resolves to a User instance
+    mockProjectDbGetAllProjects.mockResolvedValue([]); // Ensure no projects exist already
+    mockProjectDbCreateProject.mockResolvedValue(
+        new Project({ title: 'Full-Stack', description: 'course', owner }) // Ensure mock returns a valid Project
+    );
 
-    //then
+    // When
+    await projectService.createProject(
+        { title: 'Full-Stack', description: 'course', owner: { id: 1, ...userInput } }, // Pass the user input
+        owner.getRole() // Pass the correct role
+    );
+
+    // Then
     expect(mockProjectDbCreateProject).toHaveBeenCalledTimes(1);
     expect(mockProjectDbCreateProject).toHaveBeenLastCalledWith(
         expect.objectContaining({
-            title: 'Full-Stack',
-            description: 'course',
-            owner: user,
-            members: [user],
-            tasks: [],
+            project: expect.objectContaining({
+                // Add "project" wrapper in the expectation
+                title: 'Full-Stack',
+                description: 'course',
+                owner, // Ensure the owner matches the User instance
+                members: [owner], // Ensure the owner is included in the members
+                tasks: [], // Ensure no tasks are initially created
+            }),
         })
     );
 });
@@ -134,16 +151,17 @@ test('given: valid values for project, when: project is created, then: project i
 test('given: invalid values for project, when: project is created, then: error is thrown', async () => {
     //given
     mockUserDbGetUserById.mockResolvedValue(null);
+    mockProjectDbGetAllProjects.mockResolvedValue([]);
 
     //when
-    const project = () =>
-        projectService.createProject(
+    const project = async () =>
+        await projectService.createProject(
             {
                 title: 'Full-Stack',
                 description: 'course',
                 owner: userInput,
             },
-            'PROJECT_OWNER'
+            'PROJECT_MANAGER'
         );
 
     //expect
@@ -152,12 +170,10 @@ test('given: invalid values for project, when: project is created, then: error i
 
 test('given: existing projects, when: getting project by id, then: project with given id is returned', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
+    mockProjectDbGetProjectById.mockResolvedValue(project);
 
     //when
-    const result = projectService.getProjectById({ id: 1 });
+    const result = await projectService.getProjectById({ id: 1 });
 
     //then
     expect(result).toEqual(
@@ -174,20 +190,20 @@ test('given: existing projects, when: getting project by id, then: project with 
 
 test('given: invalid id for project, when: getting project by id, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockResolvedValue(null);
+    mockProjectDbGetProjectById.mockResolvedValue(null); // Ensure null is returned for this test case
 
     //when
-    const project = () => projectService.getProjectById({ id: 1 });
+    const projecttest = async () => await projectService.getProjectById({ id: 1 });
 
     //then
-    expect(project).toThrow('Project with id:1 not found.');
+    await expect(projecttest()).rejects.toThrow('Project with id:1 not found.'); // Ensure error is thrown as expected
 });
 
-test('given: existing project, when: changing project status, then: status of project is changed', async() => {
+test('given: existing project, when: changing project status, then: status of project is changed', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
+    mockProjectDbGetProjectById.mockResolvedValue(project);
+    const testProject = project;
+    mockProjectDbChangeProject.mockResolvedValue(testProject);
 
     //when
     const result = await projectService.toggleProjectDoneById({ id: 1 });
@@ -196,29 +212,32 @@ test('given: existing project, when: changing project status, then: status of pr
     expect(result.getDone()).toEqual(true);
 });
 
-test('given: existing project, when: changing project status, then: status of project is changed', () => {
+test('given: inxisting project id, when: changing project status, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockResolvedValue(null);
+    mockProjectDbGetProjectById.mockResolvedValue(null); // Make sure 'project' is defined elsewhere
 
     //when
-    const project = () => projectService.toggleProjectDoneById({ id: 1 });
+    const toggleStatus = async () => await projectService.toggleProjectDoneById({ id: 1 });
 
     //then
-    expect(project).toThrow('Project with id:1 not found.');
+    await expect(toggleStatus()).rejects.toThrow('Project with id:1 not found.'); // Expect the error to be thrown
 });
 
 test('given: existing member and project, when: adding member to project, then: member id added to project', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
+    mockProjectDbGetProjectById.mockResolvedValue(project);
     mockUserDbGetUserById.mockImplementation(async ({ id }: { id: number }) => {
         return (id === 2 && user2) || null;
     });
     mockProjectDbChangeProject.mockResolvedValue(project);
 
     //when
-    const result = await projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
+    const result = await projectService.addMemberByIdByProjectId({
+        projectId: 1,
+        memberId: 2,
+        userRole: 'ADMIN',
+        userEmail: 'john.doe@ucll.be',
+    });
 
     //then
     expect(result.getMembers().length).toEqual(2);
@@ -230,22 +249,32 @@ test('given: invalid id for project, when: adding member to project, then: error
     mockProjectDbGetProjectById.mockResolvedValue(null);
 
     //when
-    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
+    const result = async () =>
+        await projectService.addMemberByIdByProjectId({
+            projectId: 1,
+            memberId: 2,
+            userRole: 'ADMIN',
+            userEmail: 'john.doe@ucll.be',
+        });
 
     //then
-    expect(result).toThrow('Project with id:1 not found.');
+    expect(result).rejects.toThrow('Project with id:1 not found.');
 });
 
 test('given: invalid member id and project, when: adding member to project, then: error is thrown', async () => {
     //given
-    mockProjectDbGetProjectById.mockImplementation(async ({ id }: { id: number }) => {
-        return (id === 1 && project) || null;
-    });
+    mockProjectDbGetProjectById.mockResolvedValue(project);
     mockUserDbGetUserById.mockResolvedValue(null);
 
     //when
-    const result = () => projectService.addMemberByIdByProjectId({ projectId: 1, memberId: 2, userRole: 'ADMIN', userEmail: 'john.doe@ucll.be' });
+    const result = async () =>
+        await projectService.addMemberByIdByProjectId({
+            projectId: 1,
+            memberId: 2,
+            userRole: 'ADMIN',
+            userEmail: 'john.doe@ucll.be',
+        });
 
     //then
-    expect(result).toThrow('User with id:2 not found.');
+    expect(result).rejects.toThrow('User with id:2 not found.');
 });

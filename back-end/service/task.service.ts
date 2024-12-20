@@ -131,15 +131,16 @@ const deleteTaskById = async ({
 }) => {
     const task = await taskDb.getTaskById({ id });
     if (!task) throw new Error(`Task with id:${id} not found.`);
+
     if (userRole === 'ADMIN') {
         await taskDb.deleteTaskById(id);
-        return "Task deleted successfull!";
+        return 'Task deleted successfully!';
     } else {
         const user = await userDb.getUserByEmail({ email: userEmail });
-        if (!user) throw new Error(`User with id:${id} not found.`);
-        if (user.getId() != task.getOwner().getId()) throw new Error(`User not owner of task.`);
+        if (!user) throw new Error(`User with email:${userEmail} not found.`);
+        if (user.getId() !== task.getOwner().getId()) throw new Error(`User not owner of task.`);
         await taskDb.deleteTaskById(id);
-        return "Task deleted successfull!"
+        return 'Task deleted successfully!';
     }
 };
 
